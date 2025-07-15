@@ -1,0 +1,5 @@
+QQ通信协议 NapCat
+https://github.com/NapNeko/NapCatQQ/releases
+
+NapCat协议的机器人框架 ncatbot
+pip install ncatbot -U -i https://mirrors.aliyun.com/pypi/simple
