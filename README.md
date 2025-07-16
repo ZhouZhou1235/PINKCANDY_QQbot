@@ -1,4 +1,4 @@
-# 粉糖QQ机器服务
+# 粉糖QQ终端
 
 
 ## 描述
@@ -13,4 +13,4 @@
 
 使用的技术与库：
 NapCat --- 基于接口的QQ通信协议实现
-ncatbot --- 使用NapCat协议的机器人框架
+ncatbot --- 使用NapCat协议的python机器人框架
