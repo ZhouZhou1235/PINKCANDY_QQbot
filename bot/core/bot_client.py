@@ -36,9 +36,12 @@ class QQbot:
             except Exception as e:log.error(f"PINKCANDY ERROR:{e}")
     # 添加事件
     def add_talk_events(self):
-        self.add_group_event(self.bot_client,hello_everyone)
-        self.add_private_event(self.bot_client,hello_user)
-        # ...
+        # 载入要添加的事件
+        self.add_group_event(hi_everyone)
+        self.add_group_event(print_help)
+        self.add_group_event(run_print_test)
+        self.add_group_event(random_get_member,self.bot_client)
+        self.add_private_event(hi_user,self.bot_client)
     # 运行
     def bot_run(self):
         self.add_talk_events()
