@@ -2,3 +2,5 @@
 /NapCat
 logs
 data
+
+__pycache__

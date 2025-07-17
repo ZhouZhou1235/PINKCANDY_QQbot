@@ -1,6 +1,6 @@
 # 启动
 
-from core.QQBot import QQbot
+from core.bot_client import QQbot
 
 if __name__=='__main__':
     qqbot = QQbot()
