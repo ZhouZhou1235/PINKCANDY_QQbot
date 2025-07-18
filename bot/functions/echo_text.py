@@ -1,11 +1,11 @@
 # 机器回复文本
-import os
 import platform
 import random
-import sys
 import ncatbot
 from ncatbot.core import GroupMessage,PrivateMessage
 from ncatbot.core import BotClient
+from core.napcat_api import *
+from core.data_models import *
 from core.bot_config import Config
 
 bot_config = Config()
@@ -41,9 +41,8 @@ async def run_print_test(message:GroupMessage):
     if message.group_id in bot_config.listen_qq_groups:
         if message.raw_message == getCommendString("test"):
             replyText = "\n===\n机器运行测试\n===\n"
-            replyText += f"载体计算机系统 {platform.platform()} {platform.version()}\n"
-            replyText += f"运行系统 {os.name}\n"
-            replyText += f"python解释器 {sys.version}\n"
+            replyText += f"载体计算机 {platform.uname().node} {platform.uname().system} {platform.uname().release}\n"
+            replyText += f"python解释器 {platform.python_version()}\n"
             replyText += f"机器框架 {ncatbot.__name__} {ncatbot.__version__} 与 NapCat\n"
             replyText += f"机器工作正常" 
             await message.reply(text=replyText)
@@ -53,13 +52,12 @@ async def random_get_member(message:GroupMessage,bot:BotClient):
     if message.group_id in bot_config.listen_qq_groups:
         if message.raw_message == getCommendString("random_get_member"):
             try:
-                result = bot.api.get_group_member_list_sync(group_id=message.group_id)
-                if result and result["status"] == "ok":
-                    member_list:list = result["data"]
-                    theMember = member_list[random.randint(0,len(member_list)-1)]
-                    echo_text = f"{message.sender.nickname}抽到了{theMember['nickname']}"
-                    await message.reply(text=echo_text)
+                memberList = api_getGroupMembers(bot,message.group_id)
+                theMember = random.choice(memberList)
+                echo_text = f"{message.sender.nickname}抽到了{theMember.nickname}"
+                await message.reply(text=echo_text)
             except Exception as e: print(f"PINKCANDY ERROR:{e}")
+
 
 # === 私聊
 
