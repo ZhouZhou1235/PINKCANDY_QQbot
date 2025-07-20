@@ -3,6 +3,7 @@
 import asyncio
 from typing import Any,Callable
 from functions.echo_text import *
+from functions.echo_media import *
 from core.bot_config import Config
 from ncatbot.core import BotClient
 from ncatbot.utils import get_log
@@ -41,6 +42,7 @@ class QQbot:
         self.add_group_event(print_help)
         self.add_group_event(run_print_test)
         self.add_group_event(random_get_member,self.bot_client)
+        self.add_group_event(get_gallery_artwork)
         self.add_private_event(hi_user,self.bot_client)
     # 运行
     def bot_run(self):

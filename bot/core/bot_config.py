@@ -14,4 +14,12 @@ class Config:
         "hi": "问好",
         "help": "帮助",
         "random_get_member": "抽群友",
+        "get_gallery_artwork": "来点粉糖",
     }
+    function_command_info = [
+        "测试：机器账号执行功能检查",
+        "问好：Hello World",
+        "帮助：打印这个帮助文本",
+        "抽群友：随机抽个群友owo 可选参数为数字表示抽取数量",
+        "来点粉糖：搜索粉糖画廊的作品 参数是标签 多个用空格隔开",
+    ]

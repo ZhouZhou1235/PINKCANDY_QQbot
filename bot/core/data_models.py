@@ -23,3 +23,23 @@ class GroupMember:
             level=obj.get('level'),
             role=obj.get('role','member')
         )
+
+# 幻想动物画廊 作品信息
+@dataclass
+class GalleryArtwork:
+    id: str
+    username: str
+    filename: str
+    title: str
+    info: str
+    time: str
+    @classmethod
+    def load(cls,obj:dict):
+        return cls(
+            id = obj['id'],
+            username = obj['username'],
+            filename = obj['filename'],
+            title = obj['title'],
+            info = obj['info'],
+            time = obj['time'],
+        )
