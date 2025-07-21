@@ -43,6 +43,7 @@ class QQbot:
         self.add_group_event(run_print_test)
         self.add_group_event(random_get_member,self.bot_client)
         self.add_group_event(get_gallery_artwork)
+        # self.add_group_event(chat_with_robot)
         self.add_private_event(hi_user,self.bot_client)
     # 运行
     def bot_run(self):

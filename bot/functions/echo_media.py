@@ -12,7 +12,7 @@ from GArea import *
 # === 群聊 ===
 
 # 来点粉糖
-@EventCoolDown(5)
+@g_eventCoolDown
 async def get_gallery_artwork(message:GroupMessage):
     if message.group_id in g_bot_config.listen_qq_groups:
         command = getCommendString("get_gallery_artwork")

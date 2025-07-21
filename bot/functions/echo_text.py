@@ -2,6 +2,7 @@
 
 import platform
 import random
+import re
 import ncatbot
 from ncatbot.core import GroupMessage,PrivateMessage
 from ncatbot.core import BotClient
@@ -9,6 +10,9 @@ import requests
 from core.napcat_api import *
 from core.data_models import *
 from GArea import *
+
+
+# TODO 尝试将这些函数合并
 
 
 # === 群聊
@@ -48,7 +52,7 @@ async def run_print_test(message:GroupMessage):
                 await message.reply(text=f"PINKCANDY ERROR:{e}")
 
 # 抽群友
-@EventCoolDown(10)
+@g_eventCoolDown
 async def random_get_member(message:GroupMessage,bot:BotClient):
     if message.group_id in g_bot_config.listen_qq_groups:
         command = getCommendString("random_get_member")
@@ -74,6 +78,24 @@ async def random_get_member(message:GroupMessage,bot:BotClient):
                             echo_text += "\n"
                         await message.reply(text=echo_text)
         except Exception as e: print(f"PINKCANDY ERROR:{e}")
+
+# 与机器对话
+async def chat_with_robot(message:GroupMessage):
+    if message.group_id in g_bot_config.listen_qq_groups:
+        # TODO 解决 @ 识别
+        # pattern = re.compile(f'[CQ:at,qq={g_bot_config.qq_number}]')
+        # if pattern.search(message.raw_message):
+        if True:
+            try:
+                clean_msg = re.sub(
+                    f'[CQ:at,qq={g_bot_config.qq_number}]|@{g_bot_config.bot_name}',
+                    '', 
+                    message.raw_message
+                ).strip()
+                ai_reply = await g_memoryChatRobot.chat(message.sender.nickname+str(message.sender.user_id),clean_msg)
+                await message.reply(text=str(ai_reply))
+            except Exception as e: print(f"PINKCANDY ERROR:{e}")
+
 
 # === 私聊
 

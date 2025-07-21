@@ -3,6 +3,7 @@
 import random
 import time
 from typing import Any, List
+from core.ai_chat import MemoryChatRobot
 from core.bot_config import Config
 from functools import wraps
 from ncatbot.core import GroupMessage
@@ -10,17 +11,15 @@ from ncatbot.core import GroupMessage
 # === 固定量 ===
 GALLERY_SYSTEM_WEB = "https://gallery-system.pinkcandy.top"
 GALLERY_WEB = "https://gallery.pinkcandy.top"
-
-
-# === 变量 ===
-g_bot_config = Config()
+DEEPSEEK_API = "https://api.deepseek.com"
+DEEPSEEK_API_KEY = "sk-69d85f5be9184810970ccf2d4add0474"
 
 
 # === 函数 ===
 
 # 得到指令对应的文本
 def getCommendString(commendKey:str):
-    return f"{g_bot_config.fixed_begin} {g_bot_config.function_commands[commendKey]}"
+    return f"{Config().fixed_begin} {Config().function_commands[commendKey]}"
 
 # 从列表中抽取指定数量元素
 def randomGetListElements(l:List[Any],num:int):
@@ -62,3 +61,9 @@ class EventCoolDown:
             self.last_trigger[key] = now
             return await func(message, *args, **kwargs)
         return wrapper
+
+
+# === 变量 ===
+g_bot_config = Config()
+g_memoryChatRobot = MemoryChatRobot(DEEPSEEK_API,DEEPSEEK_API_KEY)
+g_eventCoolDown = EventCoolDown(5)
