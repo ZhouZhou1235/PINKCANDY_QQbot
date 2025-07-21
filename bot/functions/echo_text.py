@@ -47,7 +47,8 @@ async def run_print_test(message:GroupMessage):
                 print(e)
                 await message.reply(text=f"PINKCANDY ERROR:{e}")
 
-# 随机选群友
+# 抽群友
+@EventCoolDown(10)
 async def random_get_member(message:GroupMessage,bot:BotClient):
     if message.group_id in g_bot_config.listen_qq_groups:
         command = getCommendString("random_get_member")

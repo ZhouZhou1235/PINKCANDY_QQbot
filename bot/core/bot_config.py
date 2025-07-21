@@ -7,6 +7,7 @@ class Config:
     listen_qq_groups = [
         1050637546,
         751711878,
+        764889515,
     ] # 监听的QQ群
     fixed_begin = "粉糖终端"
     function_commands = {
