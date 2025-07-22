@@ -6,7 +6,7 @@ import random
 import time
 from typing import Any, List
 from functools import wraps
-from ncatbot.core import GroupMessage,PrivateMessage
+from ncatbot.core import GroupMessage,PrivateMessage,BotClient
 import asyncio
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
@@ -14,7 +14,6 @@ from langchain_openai import ChatOpenAI
 from typing import Dict
 from pydantic import SecretStr
 from core.data_models import BotConfig
-
 
 # === 函数 ===
 
@@ -44,31 +43,7 @@ def readFileAsString(path:str):
 
 # === 类 ===
 
-# 事件冷却
-class EventCoolDown:
-    # 用法
-    # 实例化 用作函数的修饰器
-    # eventCoolDown = EventCoolDown(5)
-    # @eventCoolDown
-    # def func(message): pass
-    def __init__(self,interval):
-        self.interval = interval # 冷却时间
-        self.last_trigger = {}
-    def __call__(self,func:Any):
-        @wraps(func)
-        async def wrapper(message:GroupMessage|PrivateMessage,*args,**kwargs):
-            command = getCommendString(func.__name__)
-            # 放行非目标命令
-            if not message.raw_message.startswith(command):
-                return await func(message,*args,**kwargs)
-            key = f"{message.group_id}_{func.__name__}"
-            now = time.time()
-            if key in self.last_trigger and now - self.last_trigger[key] < self.interval:
-                await message.reply("PINKCANDY: too fast! wait a few seconds.")
-                return
-            self.last_trigger[key] = now
-            return await func(message, *args, **kwargs)
-        return wrapper
+# TODO 重写通用的事件冷却
 
 # 对话人工智能体
 # TODO 持久化储存记忆
@@ -130,17 +105,8 @@ class MemoryChatRobot:
             return response.content
         except Exception as e: print(f"PINKCANDY ERROR:{e}")
 
-
-# === 固定量 ===
-GALLERY_SYSTEM_WEB = "https://gallery-system.pinkcandy.top"
-GALLERY_WEB = "https://gallery.pinkcandy.top"
-DEEPSEEK_API = "https://api.deepseek.com"
-DEEPSEEK_API_KEY = "sk-69d85f5be9184810970ccf2d4add0474"
-
-
 # === 变量 ===
 g_workPath = os.getcwd()+'/bot' # vscode工作区
 # g_workPath = os.getcwd()
 g_bot_config = BotConfig.load(json.loads(readFileAsString(g_workPath.replace("\\","/")+"/bot_config.json")))
-g_memoryChatRobot = MemoryChatRobot(DEEPSEEK_API,DEEPSEEK_API_KEY)
-g_eventCoolDown = EventCoolDown(5)
+g_memoryChatRobot = MemoryChatRobot(g_bot_config.DEEPSEEK_API,g_bot_config.DEEPSEEK_API_KEY)

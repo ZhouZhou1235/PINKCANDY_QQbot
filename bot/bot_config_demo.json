@@ -9,5 +9,9 @@
         "指令名1：......",
         "指令名2：......"
     ],
-    "aichat_system_prompt": "对话人工智能体系统提示文本"
+    "aichat_system_prompt": "对话人工智能体系统提示文本",
+    "GALLERY_SYSTEM_WEB": "https://gallery-system.pinkcandy.top",
+    "GALLERY_WEB": "https://gallery.pinkcandy.top",
+    "DEEPSEEK_API": "https://api.deepseek.com",
+    "DEEPSEEK_API_KEY": "api key value"
 }

@@ -2,9 +2,8 @@
 
 import platform
 import random
-import re
 import ncatbot
-from ncatbot.core import GroupMessage,PrivateMessage
+from ncatbot.core import GroupMessage
 from ncatbot.core import BotClient
 import requests
 from core.napcat_api import *
@@ -12,49 +11,32 @@ from core.data_models import *
 from core.global_area import *
 
 
-# TODO 尝试将这些函数合并
-
-
-# === 群聊
-
-# 问好
-async def hi_everyone(bot:BotClient,message:GroupMessage):
-    if message.group_id in g_bot_config.listen_qq_groups:
-        if message.raw_message == getCommendString("hi"):
-            await message.reply(text="我是由生灵小蓝狗制造的粉糖终端")
-
-# 帮助
-async def print_help(bot:BotClient,message:GroupMessage):
-    if message.group_id in g_bot_config.listen_qq_groups:
-        if message.raw_message == getCommendString("help"):
-            help_text = g_bot_config.bot_name
-            help_text += "\n"
-            help_text += g_bot_config.bot_info
-            help_text += "\n"
-            commends = g_bot_config.function_command_info
-            for info in commends:
-                help_text += f"{info}\n"
-            await message.reply(text=help_text)
-
-# 测试
-async def run_print_test(bot:BotClient,message:GroupMessage):
-    if message.group_id in g_bot_config.listen_qq_groups:
-        if message.raw_message == getCommendString("test"):
-            try:
-                replyText = "\n===\n机器运行测试\n===\n"
-                replyText += f"载体计算机 {platform.uname().node} {platform.uname().system} {platform.uname().release}\n"
-                replyText += f"python解释器 {platform.python_version()}\n"
-                replyText += f"机器框架 {ncatbot.__name__} {ncatbot.__version__} 与 NapCat\n"
-                replyText += f"与幻想动物画廊通信...... {requests.post(GALLERY_SYSTEM_WEB).text}"
-                await message.reply(text=replyText)
-            except Exception as e:
-                print(e)
-                await message.reply(text=f"PINKCANDY ERROR:{e}")
-
-# 抽群友
-@g_eventCoolDown
-async def random_get_member(bot:BotClient,message:GroupMessage):
-    if message.group_id in g_bot_config.listen_qq_groups:
+# 群聊回应文字内容
+async def group_echo_text(bot:BotClient,message:GroupMessage):
+    if message.group_id not in g_bot_config.listen_qq_groups: return
+    messageContent = message.raw_message
+    groupId = message.group_id
+    if messageContent==getCommendString("help"):
+        help_text = g_bot_config.bot_name
+        help_text += "\n"
+        help_text += g_bot_config.bot_info
+        help_text += "\n"
+        commends = g_bot_config.function_command_info
+        for info in commends:
+            help_text += f"{info}\n"
+            bot.api.post_group_msg_sync(group_id=groupId,text=help_text)
+    elif messageContent==getCommendString("test"):
+        try:
+            replyText = "===\n机器运行测试\n===\n"
+            replyText += f"载体计算机 {platform.uname().node} {platform.uname().system} {platform.uname().release}\n"
+            replyText += f"python解释器 {platform.python_version()}\n"
+            replyText += f"机器框架 {ncatbot.__name__} {ncatbot.__version__} 与 NapCat\n"
+            replyText += f"与幻想动物画廊通信...... {requests.post(g_bot_config.GALLERY_SYSTEM_WEB).text}"
+            bot.api.post_group_msg_sync(group_id=groupId,text=replyText)
+        except Exception as e:
+            print(e)
+            await message.reply(text=f"PINKCANDY ERROR:{e}")
+    elif messageContent==getCommendString("random_get_member"):
         command = getCommendString("random_get_member")
         try:
             memberList = api_getGroupMembers(bot,message.group_id)
@@ -78,31 +60,3 @@ async def random_get_member(bot:BotClient,message:GroupMessage):
                             echo_text += "\n"
                         await message.reply(text=echo_text)
         except Exception as e: print(f"PINKCANDY ERROR:{e}")
-
-# 与机器对话
-async def chat_with_robot(bot:BotClient,message:GroupMessage):
-    if message.group_id in g_bot_config.listen_qq_groups:
-        # TODO 解决 @ 识别
-        # pattern = re.compile(f'[CQ:at,qq={g_bot_config.qq_number}]')
-        # if pattern.search(message.raw_message):
-        if True:
-            try:
-                clean_msg = re.sub(
-                    f'[CQ:at,qq={g_bot_config.qq_number}]|@{g_bot_config.bot_name}',
-                    '', 
-                    message.raw_message
-                ).strip()
-                ai_reply = await g_memoryChatRobot.chat(message.sender.nickname+str(message.sender.user_id),clean_msg)
-                await message.reply(text=str(ai_reply))
-            except Exception as e: print(f"PINKCANDY ERROR:{e}")
-
-
-# === 私聊
-
-# 问好
-async def hi_user(bot:BotClient,message:GroupMessage):
-    if message.raw_message == getCommendString("hi"):
-        await bot.api.post_private_msg(
-            message.user_id,
-            text=f"{message.sender.nickname}，我是由生灵小蓝狗制造的粉糖终端。"
-        )

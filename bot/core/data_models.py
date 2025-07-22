@@ -14,6 +14,10 @@ class BotConfig:
     function_commands :dict
     function_command_info :List[str] # 帮助文本
     aichat_system_prompt :str # 对话人工智能体系统提示文本
+    GALLERY_SYSTEM_WEB :str
+    GALLERY_WEB :str
+    DEEPSEEK_API :str
+    DEEPSEEK_API_KEY :str
     @classmethod
     def load(cls,obj:dict):
         return cls(
@@ -25,6 +29,10 @@ class BotConfig:
             function_commands=obj['function_commands'],
             function_command_info=obj['function_command_info'],
             aichat_system_prompt=obj['aichat_system_prompt'],
+            GALLERY_SYSTEM_WEB=obj['GALLERY_SYSTEM_WEB'],
+            GALLERY_WEB=obj['GALLERY_WEB'],
+            DEEPSEEK_API=obj['DEEPSEEK_API'],
+            DEEPSEEK_API_KEY=obj['DEEPSEEK_API_KEY'],
         )
 
 # 群友
