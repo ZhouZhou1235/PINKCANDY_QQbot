@@ -6,14 +6,14 @@ import requests
 from ncatbot.core import GroupMessage
 from core.napcat_api import *
 from core.data_models import *
-from GArea import *
+from core.global_area import *
 
 
 # === 群聊 ===
 
 # 来点粉糖
 @g_eventCoolDown
-async def get_gallery_artwork(message:GroupMessage):
+async def get_gallery_artwork(bot:BotClient,message:GroupMessage):
     if message.group_id in g_bot_config.listen_qq_groups:
         command = getCommendString("get_gallery_artwork")
         if message.raw_message[:len(command)] == command:

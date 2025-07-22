@@ -1,8 +1,31 @@
-# 由NapCatQQ/OneBot标准返回数据定义的数据模型
-# 使用原生python数据模型类修饰器
+# 数据模型
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, List, Optional
+
+# 机器配置
+@dataclass
+class BotConfig:
+    bot_name :str
+    bot_info :str
+    qq_number :str
+    listen_qq_groups :List[int] # 监听的QQ群
+    fixed_begin :str # 固定命令前缀
+    function_commands :dict
+    function_command_info :List[str] # 帮助文本
+    aichat_system_prompt :str # 对话人工智能体系统提示文本
+    @classmethod
+    def load(cls,obj:dict):
+        return cls(
+            bot_name=obj['bot_name'],
+            bot_info=obj['bot_info'],
+            qq_number=obj['qq_number'],
+            listen_qq_groups=obj['listen_qq_groups'],
+            fixed_begin=obj['fixed_begin'],
+            function_commands=obj['function_commands'],
+            function_command_info=obj['function_command_info'],
+            aichat_system_prompt=obj['aichat_system_prompt'],
+        )
 
 # 群友
 @dataclass
@@ -21,7 +44,7 @@ class GroupMember:
             nickname=obj['nickname'],
             join_time=obj['join_time'],
             level=obj.get('level'),
-            role=obj.get('role','member')
+            role=obj.get('role','member'),
         )
 
 # 幻想动物画廊 作品信息

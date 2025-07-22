@@ -1,7 +1,8 @@
 # 启动
 
-from core.bot_client import QQbot
+from core.global_area import g_bot_config
+from core.bot_launcher import create_bot
 
 if __name__=='__main__':
-    qqbot = QQbot()
-    qqbot.bot_run()
+    bot = create_bot()
+    bot.run(bt_uin=g_bot_config.qq_number)

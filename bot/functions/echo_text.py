@@ -9,7 +9,7 @@ from ncatbot.core import BotClient
 import requests
 from core.napcat_api import *
 from core.data_models import *
-from GArea import *
+from core.global_area import *
 
 
 # TODO 尝试将这些函数合并
@@ -18,13 +18,13 @@ from GArea import *
 # === 群聊
 
 # 问好
-async def hi_everyone(message:GroupMessage):
+async def hi_everyone(bot:BotClient,message:GroupMessage):
     if message.group_id in g_bot_config.listen_qq_groups:
         if message.raw_message == getCommendString("hi"):
             await message.reply(text="我是由生灵小蓝狗制造的粉糖终端")
 
 # 帮助
-async def print_help(message:GroupMessage):
+async def print_help(bot:BotClient,message:GroupMessage):
     if message.group_id in g_bot_config.listen_qq_groups:
         if message.raw_message == getCommendString("help"):
             help_text = g_bot_config.bot_name
@@ -37,7 +37,7 @@ async def print_help(message:GroupMessage):
             await message.reply(text=help_text)
 
 # 测试
-async def run_print_test(message:GroupMessage):
+async def run_print_test(bot:BotClient,message:GroupMessage):
     if message.group_id in g_bot_config.listen_qq_groups:
         if message.raw_message == getCommendString("test"):
             try:
@@ -53,7 +53,7 @@ async def run_print_test(message:GroupMessage):
 
 # 抽群友
 @g_eventCoolDown
-async def random_get_member(message:GroupMessage,bot:BotClient):
+async def random_get_member(bot:BotClient,message:GroupMessage):
     if message.group_id in g_bot_config.listen_qq_groups:
         command = getCommendString("random_get_member")
         try:
@@ -80,7 +80,7 @@ async def random_get_member(message:GroupMessage,bot:BotClient):
         except Exception as e: print(f"PINKCANDY ERROR:{e}")
 
 # 与机器对话
-async def chat_with_robot(message:GroupMessage):
+async def chat_with_robot(bot:BotClient,message:GroupMessage):
     if message.group_id in g_bot_config.listen_qq_groups:
         # TODO 解决 @ 识别
         # pattern = re.compile(f'[CQ:at,qq={g_bot_config.qq_number}]')
@@ -100,7 +100,7 @@ async def chat_with_robot(message:GroupMessage):
 # === 私聊
 
 # 问好
-async def hi_user(message:PrivateMessage,bot:BotClient):
+async def hi_user(bot:BotClient,message:GroupMessage):
     if message.raw_message == getCommendString("hi"):
         await bot.api.post_private_msg(
             message.user_id,
