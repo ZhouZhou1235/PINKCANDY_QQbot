@@ -6,3 +6,7 @@ https://github.com/NapNeko/NapCatQQ/releases
 
 NapCat协议的机器人框架 ncatbot
 pip install ncatbot -U -i https://mirrors.aliyun.com/pypi/simple
+
+python导入模块分析 pipreqs
+pip install pipreqs
+pipreqs . --encoding=utf8 --force

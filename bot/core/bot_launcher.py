@@ -5,7 +5,7 @@ from typing import Any,Callable
 from functions.chat_with_robot import *
 from functions.echo_text import *
 from functions.echo_media import *
-from ncatbot.core import BotClient
+from ncatbot.core import BotClient,GroupMessage,PrivateMessage
 from ncatbot.utils import get_log
 
 # 向机器添加消息监听事件

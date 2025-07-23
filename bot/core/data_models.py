@@ -1,7 +1,7 @@
 # 数据模型
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 # 机器配置
 @dataclass
@@ -14,10 +14,11 @@ class BotConfig:
     function_commands :dict
     function_command_info :List[str] # 帮助文本
     aichat_system_prompt :str # 对话人工智能体系统提示文本
-    GALLERY_SYSTEM_WEB :str
-    GALLERY_WEB :str
-    DEEPSEEK_API :str
-    DEEPSEEK_API_KEY :str
+    MySQL_config :dict # MySQL数据库配置
+    GALLERY_SYSTEM_WEB :str # 幻想动物画廊后端地址
+    GALLERY_WEB :str # 幻想动物画廊网站地址
+    DEEPSEEK_API :str # deepseek接口地址
+    DEEPSEEK_API_KEY :str # deepseek发放的接口调用密钥
     @classmethod
     def load(cls,obj:dict):
         return cls(
@@ -29,6 +30,7 @@ class BotConfig:
             function_commands=obj['function_commands'],
             function_command_info=obj['function_command_info'],
             aichat_system_prompt=obj['aichat_system_prompt'],
+            MySQL_config=obj['MySQL_config'],
             GALLERY_SYSTEM_WEB=obj['GALLERY_SYSTEM_WEB'],
             GALLERY_WEB=obj['GALLERY_WEB'],
             DEEPSEEK_API=obj['DEEPSEEK_API'],

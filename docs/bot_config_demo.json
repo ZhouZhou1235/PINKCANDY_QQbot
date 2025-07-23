@@ -9,6 +9,12 @@
         "指令名1：......",
         "指令名2：......"
     ],
+    "MySQL_config": {
+        "host": "localhost",
+        "user": "root",
+        "password": "123456",
+        "database": "database name"
+    },
     "aichat_system_prompt": "对话人工智能体系统提示文本",
     "GALLERY_SYSTEM_WEB": "https://gallery-system.pinkcandy.top",
     "GALLERY_WEB": "https://gallery.pinkcandy.top",

@@ -3,8 +3,8 @@
 import os
 
 workPath = os.getcwd().replace("\\","/")
-input_path = workPath+"/bot/tools/createOneLineText_input.txt"
-output_path = workPath+"/bot/tools/createOneLineText_output.txt"
+input_path = workPath+"/tools/createOneLineText_input.txt"
+output_path = workPath+"/tools/createOneLineText_output.txt"
 
 text = ''
 
