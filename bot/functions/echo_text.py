@@ -8,30 +8,31 @@ from ncatbot.core import BotClient
 import requests
 from core.napcat_api import *
 from core.data_models import *
-from core.global_area import *
+from core.global_utils import *
+from core.config_manager import config_manager
 
 
 # 群聊回应文字内容
 async def group_echo_text(bot:BotClient,message:GroupMessage):
-    if message.group_id not in g_bot_config.listen_qq_groups: return
+    if message.group_id not in config_manager.bot_config.listen_qq_groups: return
     messageContent = message.raw_message
     groupId = message.group_id
     if messageContent==getCommendString("help"):
-        help_text = g_bot_config.bot_name
+        help_text = config_manager.bot_config.bot_name
         help_text += "\n"
-        help_text += g_bot_config.bot_info
+        help_text += config_manager.bot_config.bot_info
         help_text += "\n"
-        commends = g_bot_config.function_command_info
+        commends = config_manager.bot_config.function_command_info
         for info in commends:
             help_text += f"{info}\n"
-            bot.api.post_group_msg_sync(group_id=groupId,text=help_text)
+        bot.api.post_group_msg_sync(group_id=groupId,text=help_text)
     elif messageContent==getCommendString("test"):
         try:
             replyText = "===\n机器运行测试\n===\n"
             replyText += f"载体计算机 {platform.uname().node} {platform.uname().system} {platform.uname().release}\n"
             replyText += f"python解释器 {platform.python_version()}\n"
             replyText += f"机器框架 {ncatbot.__name__} {ncatbot.__version__} 与 NapCat\n"
-            replyText += f"与幻想动物画廊通信...... {requests.post(g_bot_config.GALLERY_SYSTEM_WEB).text}"
+            replyText += f"与幻想动物画廊通信...... {requests.post(config_manager.bot_config.GALLERY_SYSTEM_WEB).text}"
             bot.api.post_group_msg_sync(group_id=groupId,text=replyText)
         except Exception as e:
             print(e)
