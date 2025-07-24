@@ -23,7 +23,7 @@ async def group_chat_with_robot(bot:BotClient,message:GroupMessage):
     if message.group_id not in g_bot_config.listen_qq_groups: return
     if not re.compile(rf'\[CQ:at,qq={g_bot_config.qq_number}\]').search(message.raw_message): return
     try:
-        session_id = f"group_{message.group_id}_user_{message.user_id}"
+        session_id = f"qq_{message.user_id}"
         response = await g_memoryChatRobot.chat(session_id,inputStatement(message))
         bot.api.post_group_msg_sync(group_id=message.group_id,text=str(response))
     except Exception as e: print(f"PINKCANDY ERROR: {e.__context__}")

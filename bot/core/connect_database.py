@@ -14,7 +14,8 @@ class MySQLConnecter:
             password=config.MySQL_config.get('password'),
             database=config.MySQL_config.get('database'),
             charset='utf8mb4',
-            cursorclass=DictCursor
+            cursorclass=DictCursor,
+            autocommit=True,
         )
     # 查询数据
     def query_data(self,sql:str):
