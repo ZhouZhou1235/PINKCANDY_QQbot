@@ -33,7 +33,10 @@ def add_listen_event(bot_client:BotClient,handler:Callable[...,Any],isGroup:bool
 # 创建机器客户端
 def create_bot():
     bot = BotClient()
+    # 注册事件 默认群聊
     add_listen_event(bot,group_echo_text)
-    add_listen_event(bot,get_gallery_artwork)
+    add_listen_event(bot,group_echo_media)
     add_listen_event(bot,group_chat_with_robot)
+    # 私聊
+    add_listen_event(bot,private_chat_with_robot,False)
     return bot

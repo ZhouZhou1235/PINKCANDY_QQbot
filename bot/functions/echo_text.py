@@ -13,6 +13,7 @@ from core.config_manager import config_manager
 
 
 # 群聊回应文字内容
+@eventCoolDown(5)
 async def group_echo_text(bot:BotClient,message:GroupMessage):
     if message.group_id not in config_manager.bot_config.listen_qq_groups: return
     messageContent = message.raw_message

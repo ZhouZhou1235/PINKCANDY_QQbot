@@ -10,8 +10,9 @@ from core.global_utils import *
 from core.config_manager import config_manager
 
 
-# 来点粉糖
-async def get_gallery_artwork(bot:BotClient,message:GroupMessage):
+# 在群聊中回复媒体
+@eventCoolDown(5)
+async def group_echo_media(bot:BotClient,message:GroupMessage):
     if message.group_id in config_manager.bot_config.listen_qq_groups:
         command = getCommendString("get_gallery_artwork")
         if message.raw_message[:len(command)] == command:
