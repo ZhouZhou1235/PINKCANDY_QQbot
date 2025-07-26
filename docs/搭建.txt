@@ -1,0 +1,26 @@
+搭建
+
+
+=== 前置条件 ===
+安装python环境
+安装QQ
+启动MySQL 创建相应数据库和表 pinkcandy_qqbot.sql
+在项目文件夹根目录放置 NapCat（或依赖ncatbot自动安装脚本）
+编写机器人配置文件 bot_config_demo.json
+
+
+=== 程序创建 ===
+bot即为应用文件夹，或者说项目根目录。
+在项目根目录下：
+
+[windows]
+python -m venv venv # 创建虚拟环境
+venv\Scripts\activate # 激活 
+pip install -r requirements.txt  # 安装依赖
+[linux]
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+创建 bot_config.json 放到根目录，程序运行会自动读取加载配置。
+全部完成后启动测试，如果成功应该能看到命令行输出 INFO 信息。

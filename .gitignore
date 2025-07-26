@@ -4,3 +4,4 @@ logs
 data
 __pycache__
 bot_config.json
+venv

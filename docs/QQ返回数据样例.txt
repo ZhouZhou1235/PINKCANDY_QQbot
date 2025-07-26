@@ -1,6 +1,0 @@
-QQ返回数据样例
-
-
-获取群聊成员列表
-{'status': 'ok', 'retcode': 0, 'data': [{'group_id': 1050637546, 'user_id': 3551851286, 'nickname': '滑稽茶杯周周', 'card': '', 'sex': 'unknown', 'age': 0, 'area': '', 'level': '2', 'qq_level': 0, 'join_time': 1749380663, 'last_sent_time': 1752762193, 'title_expire_time': 0, 'unfriendly': False, 'card_changeable': True, 'is_robot': False, 'shut_up_timestamp': 0, 'role': 'member', 'title': ''}, {'group_id': 1050637546, 'user_id': 2854196310, 'nickname': 'Q群管家', 'card': '', 'sex': 'unknown', 'age': 0, 'area': '', 'level': '0', 'qq_level': 0, 'join_time': 1749380657, 'last_sent_time': 1749380658, 'title_expire_time': 0, 'unfriendly': False, 'card_changeable': True, 'is_robot': True, 'shut_up_timestamp': 0, 'role': 'admin', 'title': ''}, {'group_id': 1050637546, 'user_id': 1479499289, 'nickname': '粉糖粒子周周', 'card': '', 'sex': 'unknown', 'age': 0, 'area': '', 'level': '3', 'qq_level': 0, 'join_time': 1749380656, 'last_sent_time': 1752762192, 'title_expire_time': 0, 'unfriendly': False, 'card_changeable': True, 'is_robot': False, 'shut_up_timestamp': 0, 'role': 'owner', 'title': ''}], 'message': '', 'wording': '', 'echo': 1752831867}
-

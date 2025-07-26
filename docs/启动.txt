@@ -1,0 +1,14 @@
+启动
+
+
+在项目根目录下：
+
+[windows]
+点击 launcher.bat 启动napcat协议服务
+venv\Scripts\activate
+python main.py
+
+[linux]
+启动napcat协议服务
+source venv/bin/activate
+python3 main.py
