@@ -16,17 +16,19 @@ class MemoryChatRobot:
     def __init__(self,config:BotConfig,db:MySQLConnecter):
         self.botConfig = config
         self.llm = ChatOpenAI(
-            model="deepseek-chat",
-            base_url=config.DEEPSEEK_API,
-            api_key=SecretStr(config.DEEPSEEK_API_KEY),
-            temperature=0.25  # 温度
+            model=config.MemoryChatRobot_config['model'],
+            base_url=config.MemoryChatRobot_config['base_url'],
+            api_key=SecretStr(config.MemoryChatRobot_config['api_key']),
+            temperature=config.MemoryChatRobot_config['temperature']  # 温度
         )
         self.chat_histories: Dict[str,list] = {} # 对话记录存储
         self.db = db # 数据库连接者
+        self.max_memory_length :int = config.MemoryChatRobot_config['max_memory_length'] # 内存中保留最大对话轮数
+        self.max_db_memory_length :int = config.MemoryChatRobot_config['max_db_memory_length'] # 数据库保存最大对话轮数
     # 获取对话链
     def get_chain(self,session_id:str):
         prompt = ChatPromptTemplate.from_messages([
-            ("system",self.botConfig.aichat_system_prompt),
+            ("system",self.botConfig.MemoryChatRobot_config['aichat_system_prompt']),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{input}"),
         ])
@@ -49,10 +51,17 @@ class MemoryChatRobot:
                 formatted.append(AIMessage(content=msg["content"]))
         return formatted
     # 保存消息
-    def save_message(self, session_id:str,message:dict):
+    def save_message(self,session_id:str,message:dict):
         if session_id not in self.chat_histories:
             self.chat_histories[session_id] = []
         self.chat_histories[session_id].append(message)
+        if len(self.chat_histories[session_id])>self.max_memory_length:
+            self.chat_histories[session_id] = self.chat_histories[session_id][-self.max_memory_length:]
+    # 限制消息数量
+    def limit_history_length(self,history:List[dict]):
+        if len(history) > self.max_db_memory_length:
+            return history[-self.max_db_memory_length:]
+        return history
     # 加载私聊历史对话
     async def load_private_chat(self,session_id:str):
         sql = f"""
@@ -61,11 +70,15 @@ class MemoryChatRobot:
             WHERE session_id='{session_id}'
         """
         result = self.db.query_data(sql)
-        return json.loads(result['history_json']) if result else [] # type: ignore
+        if result:
+            history = json.loads(result['history_json'])  # type: ignore
+            return self.limit_history_length(history)
+        return []
     # 私聊保存到数据库
     async def save_private_chat(self,session_id:str,history:List[dict]):
         try:
-            history_json = json.dumps(history,ensure_ascii=False)
+            limited_history = self.limit_history_length(history)
+            history_json = json.dumps(limited_history, ensure_ascii=False)
             sql = """
                 INSERT INTO private_chat_memories (session_id,history_json) 
                 VALUES (%s,%s)
@@ -75,7 +88,7 @@ class MemoryChatRobot:
         except Exception as e:
             print(f"PINKCANDY MYSQL SAVE ERROR: {e}")
     # 私聊对话
-    async def private_chat(self,session_id:str,user_input:str):
+    async def private_chat(self,session_id:str,user_input:str,save=True):
         try:
             history = await self.load_private_chat(session_id)
             user_msg = {"type": "human","content": user_input}
@@ -84,7 +97,7 @@ class MemoryChatRobot:
             if session_id not in self.chat_histories:
                 self.chat_histories[session_id] = history.copy()
             else:
-                self.chat_histories[session_id] = history.copy()
+                self.chat_histories[session_id] = history.copy()   
             chain = self.get_chain(session_id)
             response = await asyncio.to_thread(
                 chain.invoke,
@@ -95,9 +108,10 @@ class MemoryChatRobot:
                 }
             )
             ai_msg = {"type": "ai", "content": response.content}
-            history.append(ai_msg)
-            self.save_message(session_id, ai_msg)
-            await self.save_private_chat(session_id, history)
+            if save:
+                history.append(ai_msg)
+                self.save_message(session_id, ai_msg)
+                await self.save_private_chat(session_id, history)
             return response.content
         except Exception as e:
             print(f"PINKCANDY CHAT ERROR: {e}")
@@ -109,11 +123,15 @@ class MemoryChatRobot:
             WHERE session_id='{session_id}'
         """
         result = self.db.query_data(sql)
-        return json.loads(result['history_json']) if result else []
+        if result:
+            history = json.loads(result['history_json'])  # type: ignore
+            return self.limit_history_length(history)
+        return []
     # 群聊保存到数据库
     async def save_group_chat(self,session_id:str,history:List[dict]):
         try:
-            history_json = json.dumps(history,ensure_ascii=False)
+            limited_history = self.limit_history_length(history)
+            history_json = json.dumps(limited_history, ensure_ascii=False)
             sql = """
                 INSERT INTO group_chat_memories (session_id,history_json) 
                 VALUES (%s,%s)
@@ -123,14 +141,14 @@ class MemoryChatRobot:
         except Exception as e:
             print(f"PINKCANDY MYSQL SAVE ERROR: {e}")
     # 群聊对话
-    async def group_chat(self,session_id:str,user_input:str):
+    async def group_chat(self,session_id:str,user_input:str,save=True):
         try:
             history = await self.load_group_chat(session_id)
             user_msg = {"type": "human","content": user_input}
             history.append(user_msg)
             self.save_message(session_id, user_msg)
             if session_id not in self.chat_histories:
-                self.chat_histories[session_id] = history.copy()
+                self.chat_histories[session_id] = history.copy() 
             chain = self.get_chain(session_id)
             response = await asyncio.to_thread(
                 chain.invoke,
@@ -141,9 +159,10 @@ class MemoryChatRobot:
                 }
             )
             ai_msg = {"type": "ai", "content": response.content}
-            history.append(ai_msg)
-            self.save_message(session_id, ai_msg)
-            await self.save_group_chat(session_id,history)
+            if save:
+                history.append(ai_msg)
+                self.save_message(session_id, ai_msg)
+                await self.save_group_chat(session_id, history)
             return response.content
         except Exception as e:
             print(f"PINKCANDY CHAT ERROR: {e}")

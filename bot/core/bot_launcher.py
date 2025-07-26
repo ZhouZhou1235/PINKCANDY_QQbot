@@ -2,11 +2,14 @@
 
 import asyncio
 from typing import Any,Callable
+from functions.schedule_event import group_chat_summary
 from functions.chat_with_robot import *
 from functions.echo_text import *
 from functions.echo_media import *
 from ncatbot.core import BotClient,GroupMessage,PrivateMessage
 from ncatbot.utils import get_log
+
+scheduler = Scheduler()
 
 # 向机器添加消息监听事件
 def add_listen_event(bot_client:BotClient,handler:Callable[...,Any],isGroup:bool=True,*args,**kwargs):
@@ -37,6 +40,13 @@ def create_bot():
     add_listen_event(bot,group_echo_text)
     add_listen_event(bot,group_echo_media)
     add_listen_event(bot,group_chat_with_robot)
+    # ...
     # 私聊
     add_listen_event(bot,private_chat_with_robot,False)
+    # ...
     return bot
+
+# 为客户端添加定时任务
+def add_schedule_to_bot(bot:BotClient):
+    scheduler.schedule_task(group_chat_summary,60*60*24,True,args=(bot,)) # 逗号不可去除 表示元组
+    # ...

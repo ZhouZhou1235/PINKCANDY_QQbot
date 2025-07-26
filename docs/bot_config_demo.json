@@ -15,9 +15,15 @@
         "password": "123456",
         "database": "database name"
     },
-    "aichat_system_prompt": "对话人工智能体系统提示文本",
+    "MemoryChatRobot_config": {
+        "model": "模型名称",
+        "temperature": 0.25,
+        "aichat_system_prompt": "系统提示文本",
+        "max_memory_length": 50,
+        "max_db_memory_length": 100,
+        "base_url": "https://api.deepseek.com",
+        "api_key": "api key value"
+    },
     "GALLERY_SYSTEM_WEB": "https://gallery-system.pinkcandy.top",
-    "GALLERY_WEB": "https://gallery.pinkcandy.top",
-    "DEEPSEEK_API": "https://api.deepseek.com",
-    "DEEPSEEK_API_KEY": "api key value"
+    "GALLERY_WEB": "https://gallery.pinkcandy.top"
 }
