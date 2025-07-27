@@ -11,7 +11,7 @@ python main.py
 
 
 [linux]
-启动napcat协议服务
+sudo xvfb-run -a qq --no-sandbox # 启动napcat协议服务
 source venv/bin/activate
 python3 main.py
 
