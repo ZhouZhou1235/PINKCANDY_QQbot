@@ -62,6 +62,9 @@ class MemoryChatRobot:
         if len(history) > self.max_db_memory_length:
             return history[-self.max_db_memory_length:]
         return history
+    # 抹除记忆
+    def clear_memories(self):
+        self.chat_histories.clear()
     # 加载私聊历史对话
     async def load_private_chat(self,session_id:str):
         sql = f"""

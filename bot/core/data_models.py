@@ -9,6 +9,7 @@ class BotConfig:
     bot_name :str
     bot_info :str
     qq_number :str
+    admin_list :List[int] # 管理员qq号
     listen_qq_groups :List[int] # 监听的QQ群
     fixed_begin :str # 固定命令前缀
     function_commands :dict
@@ -23,6 +24,7 @@ class BotConfig:
             bot_name=obj['bot_name'],
             bot_info=obj['bot_info'],
             qq_number=obj['qq_number'],
+            admin_list=obj['admin_list'],
             listen_qq_groups=obj['listen_qq_groups'],
             fixed_begin=obj['fixed_begin'],
             function_commands=obj['function_commands'],

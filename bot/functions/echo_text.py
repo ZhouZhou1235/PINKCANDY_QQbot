@@ -38,7 +38,7 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
         except Exception as e:
             print(e)
             await message.reply(text=f"PINKCANDY ERROR:{e}")
-    elif messageContent==getCommendString("random_get_member"):
+    elif messageContent==getCommendString("random_get_member") or messageContent[:len(getCommendString("random_get_member"))]==getCommendString("random_get_member"):
         command = getCommendString("random_get_member")
         try:
             memberList = api_getGroupMembers(bot,message.group_id)
