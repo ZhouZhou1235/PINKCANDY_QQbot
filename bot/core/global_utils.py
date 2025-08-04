@@ -3,6 +3,7 @@
 import asyncio
 from functools import wraps
 import random
+import re
 import time
 from typing import Any, Callable, List
 from core.config_manager import config_manager
@@ -11,6 +12,8 @@ import threading
 from datetime import datetime
 from typing import Callable, Any
 
+
+at_pattern = rf'\[CQ:at,qq={config_manager.bot_config.qq_number}\]|@{config_manager.bot_config.bot_name}|@{config_manager.bot_config.qq_number}'
 
 # 得到指令对应的文本
 def getCommendString(commendKey:str):
@@ -56,6 +59,18 @@ def eventCoolDown(seconds:int):
             return await func(*args,**kwargs)
         return wrapped
     return decorator
+
+# 识别 @ 在
+def is_at(messageRaw:str):
+    if re.compile(at_pattern).search(messageRaw): return True
+    return False
+
+# 语句输入
+def inputStatement(message:GroupMessage|PrivateMessage):
+    text = f"QQ号 {message.user_id} 用户 {message.sender.nickname} 对你说话："
+    clean_msg = re.sub(at_pattern,'', message.raw_message).strip()
+    text += clean_msg
+    return text
 
 # 定时任务
 class Scheduler:

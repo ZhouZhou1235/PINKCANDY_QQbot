@@ -2,10 +2,10 @@
 
 import platform
 import random
-import ncatbot
+import psutil
+import requests
 from ncatbot.core import GroupMessage
 from ncatbot.core import BotClient
-import requests
 from core.napcat_api import *
 from core.data_models import *
 from core.global_utils import *
@@ -30,10 +30,9 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
     elif messageContent==getCommendString("test"):
         try:
             replyText = "===\n机器运行测试\n===\n"
-            replyText += f"载体计算机 {platform.uname().node} {platform.uname().system} {platform.uname().release}\n"
-            replyText += f"python解释器 {platform.python_version()}\n"
-            replyText += f"机器框架 {ncatbot.__name__} {ncatbot.__version__} 与 NapCat\n"
-            replyText += f"与幻想动物画廊通信...... {requests.post(config_manager.bot_config.GALLERY_SYSTEM_WEB).text}"
+            replyText += f"{platform.uname().node} {platform.uname().system} {platform.uname().release}\n"
+            replyText += f"载体状态 CPU-{psutil.cpu_percent(interval=1)}% 内存-{psutil.virtual_memory().percent}%\n"
+            replyText += f"幻想动物画廊 {requests.post(config_manager.bot_config.GALLERY_SYSTEM_WEB).text}"
             bot.api.post_group_msg_sync(group_id=groupId,text=replyText)
         except Exception as e:
             print(e)

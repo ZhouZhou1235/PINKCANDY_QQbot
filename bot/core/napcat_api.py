@@ -1,5 +1,6 @@
 # NapCat QQ协议接口
 
+import json
 from typing import List
 from ncatbot.core import BotClient
 from core.data_models import *
@@ -9,3 +10,14 @@ def api_getGroupMembers(bot:BotClient,groupId:int):
     result = bot.api.get_group_member_list_sync(group_id=groupId)
     members :List[GroupMember] = [GroupMember.load(obj) for obj in result['data']]
     return members
+
+# 获取群聊聊天历史记录
+async def api_getGroupMessageHistory(bot:BotClient,groupId:int|str,count:int):
+    result = await bot.api.get_group_msg_history(
+        group_id=groupId,
+        message_seq=0,
+        count=count,
+        reverse_order=False
+    )
+    theMessageList:list = json.loads(str(result).replace("'","\""))['data']['messages']
+    return theMessageList
