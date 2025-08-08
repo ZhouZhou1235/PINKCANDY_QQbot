@@ -15,3 +15,5 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
         if messageContent==getCommendString("clear_memories") and message.user_id in config_manager.bot_config.admin_list:
             config_manager.chat_robot.clear_memories()
             message.reply_sync(text="PINKCANDY: clear memories done!")
+        # TODO 设置日期提醒
+

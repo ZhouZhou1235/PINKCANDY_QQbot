@@ -2,7 +2,7 @@
 
 import asyncio
 from typing import Any,Callable
-from functions.schedule_event import group_chat_summary
+from functions.schedule_event import *
 from functions.chat_with_robot import *
 from functions.echo_text import *
 from functions.echo_media import *
@@ -49,7 +49,8 @@ def add_default_event_to_bot(bot:BotClient):
 
 # 为客户端添加默认定时任务
 def add_default_schedule_to_bot(bot:BotClient):
-    scheduler.schedule_task(group_chat_summary,60*60*12,True,args=(bot,)) # 逗号不可去除 表示元组
+    pass
+    # scheduler.schedule_task(group_chat_summary,60*60*12,True,args=(bot,)) # 逗号不可去除 表示元组
     # ...
 
 # 创建客户端

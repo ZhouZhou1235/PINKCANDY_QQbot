@@ -21,3 +21,12 @@ async def api_getGroupMessageHistory(bot:BotClient,groupId:int|str,count:int):
     )
     theMessageList:list = json.loads(str(result).replace("'","\""))['data']['messages']
     return theMessageList
+
+# 获取群友信息
+async def api_getGroupMember(bot:BotClient,groupId:int|str,userId:int|str):
+    member :GroupMember = await bot.api.get_group_member_info(
+        group_id=groupId,
+        user_id=userId,
+        no_cache=True
+    )
+    return member

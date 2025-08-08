@@ -18,6 +18,7 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
     if message.group_id not in config_manager.bot_config.listen_qq_groups: return
     messageContent = message.raw_message
     groupId = message.group_id
+    # 帮助
     if messageContent==getCommendString("help"):
         help_text = config_manager.bot_config.bot_name
         help_text += "\n"
@@ -27,6 +28,7 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
         for info in commends:
             help_text += f"{info}\n"
         bot.api.post_group_msg_sync(group_id=groupId,text=help_text)
+    # 测试
     elif messageContent==getCommendString("test"):
         try:
             replyText = "===\n机器运行测试\n===\n"
@@ -37,6 +39,7 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
         except Exception as e:
             print(e)
             await message.reply(text=f"PINKCANDY ERROR:{e}")
+    # 抽群友
     elif messageContent==getCommendString("random_get_member") or messageContent[:len(getCommendString("random_get_member"))]==getCommendString("random_get_member"):
         command = getCommendString("random_get_member")
         try:
@@ -61,3 +64,33 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
                             echo_text += "\n"
                         await message.reply(text=echo_text)
         except Exception as e: print(f"PINKCANDY ERROR:{e}")
+    # TODO 延时发送信息
+    elif False:
+        pass
+    # 概率触发
+    else:
+        # 跟着说话
+        if random.randint(0,199)<1:
+            try:
+                session_id = str(groupId)
+                result = await bot.api.get_group_msg_history(
+                    group_id=groupId,
+                    message_seq=0,
+                    count=3,
+                    reverse_order=False
+                )
+                theMessageList:list = await api_getGroupMessageHistory(bot,groupId,20)
+                if theMessageList:
+                    messagesString = ""
+                    for m in theMessageList:
+                        messagesString += f"[id{m['sender']['user_id']} nickname{m['sender']['user_id']}:{m['raw_message']}]"
+                    auto_input = f"""
+                        {messagesString}
+                        根据上面的聊天跟着说句话，不要发负面内容。不宜超过20字。
+                    """
+                    response = await config_manager.chat_robot.group_chat(session_id,auto_input)
+                    await bot.api.post_group_msg(group_id=groupId, text=str(response))
+            except Exception as e: print(e)
+        # 戳发送者
+        elif random.randint(0,149)<1:
+            bot.api.send_poke_sync(user_id=message.user_id,group_id=groupId)
