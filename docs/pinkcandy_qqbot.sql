@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2025-07-26 18:37:13
--- 服务器版本： 8.0.12
+-- 生成日期： 2025-08-12 18:46:26
+-- 服务器版本： 5.7.26
 -- PHP 版本： 7.3.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -25,15 +25,26 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- 表的结构 `date_reminder`
+--
+
+CREATE TABLE `date_reminder` (
+  `title` varchar(128) NOT NULL,
+  `date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- 表的结构 `group_chat_memories`
 --
 
 CREATE TABLE `group_chat_memories` (
-  `session_id` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
+  `session_id` varchar(128) NOT NULL,
   `history_json` json NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -42,15 +53,21 @@ CREATE TABLE `group_chat_memories` (
 --
 
 CREATE TABLE `private_chat_memories` (
-  `session_id` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
+  `session_id` varchar(128) NOT NULL,
   `history_json` json NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- 转储表的索引
 --
+
+--
+-- 表的索引 `date_reminder`
+--
+ALTER TABLE `date_reminder`
+  ADD PRIMARY KEY (`title`);
 
 --
 -- 表的索引 `group_chat_memories`

@@ -11,8 +11,6 @@ from ncatbot.core import BotClient,GroupMessage,PrivateMessage
 from ncatbot.utils import get_log
 
 
-scheduler = Scheduler()
-
 # 向机器添加消息监听事件
 def add_listen_event(bot_client:BotClient,handler:Callable[...,Any],isGroup:bool=True,*args,**kwargs):
     log = get_log()
@@ -37,21 +35,29 @@ def add_listen_event(bot_client:BotClient,handler:Callable[...,Any],isGroup:bool
 
 # 为客户端注册默认事件
 def add_default_event_to_bot(bot:BotClient):
-    # 注册事件 默认群聊
     add_listen_event(bot,group_echo_text)
     add_listen_event(bot,group_echo_media)
     add_listen_event(bot,group_chat_with_robot)
     add_listen_event(bot,group_setting_action)
-    # ...
-    # 私聊
     add_listen_event(bot,private_chat_with_robot,False)
-    # ...
 
 # 为客户端添加默认定时任务
 def add_default_schedule_to_bot(bot:BotClient):
-    pass
-    # scheduler.schedule_task(group_chat_summary,60*60*12,True,args=(bot,)) # 逗号不可去除 表示元组
-    # ...
+    # config_manager.scheduler.schedule_task(
+    #     schedule_oneday,
+    #     60*60*24,
+    #     True,
+    #     get_today_timestamp(hour=10),
+    #     args=(bot,)
+    # )
+
+    # test
+    config_manager.scheduler.schedule_task(
+        schedule_oneday,
+        10,
+        True,
+        args=(bot,)
+    )
 
 # 创建客户端
 def create_bot(): 

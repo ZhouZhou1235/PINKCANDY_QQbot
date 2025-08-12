@@ -2,6 +2,7 @@
 
 import json
 import os
+from core.global_utils import Scheduler
 from core.data_models import BotConfig
 from core.connect_database import MySQLConnecter
 from core.chat_robot import MemoryChatRobot
@@ -23,10 +24,10 @@ class ConfigManager:
         # self.work_path = os.getcwd()
         self.config_path = self.work_path.replace("\\", "/") + "/bot_config.json"
         with open(self.config_path, 'r', encoding='UTF-8') as f: config_data=json.load(f)
-        self.bot_config = BotConfig.load(config_data)
         # 全局变量
+        self.bot_config = BotConfig.load(config_data) # 配置
         self.mysql_connector = MySQLConnecter(self.bot_config) # MySQL连接者
         self.chat_robot = MemoryChatRobot(self.bot_config,self.mysql_connector) # 聊天机器人
-
+        self.scheduler = Scheduler() # 定时任务
 
 config_manager = ConfigManager()

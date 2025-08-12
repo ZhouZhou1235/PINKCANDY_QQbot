@@ -72,6 +72,13 @@ def inputStatement(message:GroupMessage|PrivateMessage):
     text += clean_msg
     return text
 
+# 获取今天指定时间的时间戳
+def get_today_timestamp(hour:int,minute=0,second=0):
+    today = datetime.today()
+    specified_time = datetime.time(hour,minute,second)
+    specified_datetime = datetime.combine(today,specified_time)
+    return specified_datetime.timestamp()
+
 # 定时任务
 class Scheduler:
     def __init__(self):
@@ -98,7 +105,8 @@ class Scheduler:
                         self.tasks.remove(task)
             time.sleep(0.1)
     # 定时执行任务
-    def schedule_task(self,func:Callable,delay:float,loop=False,args=(),kwargs=None):
+    # args=(var1,) 逗号不可去除 表示元组
+    def schedule_task(self,func:Callable,delay:float,loop=False,beginTime=time.time(),args=(),kwargs=None):
         if kwargs is None: kwargs={}
         async def wrapper():
             if asyncio.iscoroutinefunction(func):
@@ -106,24 +114,9 @@ class Scheduler:
             return func(*args, **kwargs)
         self.tasks.append({
             'func': wrapper,
-            'time': time.time() + delay,
+            'time': beginTime+delay,
             'interval': delay,
             'loop': loop
-        })
-    # 指定时间执行任务
-    def schedule_todo(self,func,daytime,args=(),kwargs=None):
-        if kwargs is None: kwargs={}
-        if isinstance(daytime, datetime):
-            daytime = daytime.timestamp()
-        async def wrapper():
-            if asyncio.iscoroutinefunction(func):
-                return await func(*args, **kwargs)
-            return func(*args, **kwargs)
-        self.tasks.append({
-            'func': wrapper,
-            'time': daytime,
-            'interval': 0,
-            'loop': False
         })
     # 终止所有任务
     def stop_all_schedule(self):
