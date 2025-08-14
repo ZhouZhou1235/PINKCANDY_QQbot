@@ -26,8 +26,8 @@ class MySQLConnecter:
                 if result:
                     next_result = cursor.fetchone()
                     if next_result:
-                        return [result]+[next_result] +list(cursor.fetchall())
-                    return dict(result)
+                        return [result]+[next_result]+list(cursor.fetchall())
+                    return [dict(result)]
                 return None
         except Exception as e:
             print(f"PINKCANDY MYSQL ERROR:{e}")

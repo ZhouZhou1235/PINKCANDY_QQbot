@@ -10,6 +10,7 @@ from core.napcat_api import *
 from core.data_models import *
 from core.global_utils import *
 from core.config_manager import config_manager
+from functions.share_functions import *
 
 
 # 群聊回应文字内容
@@ -40,17 +41,17 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
             print(e)
             await message.reply(text=f"PINKCANDY ERROR:{e}")
     # 抽群友
-    elif messageContent==getCommendString("random_get_member") or messageContent[:len(getCommendString("random_get_member"))]==getCommendString("random_get_member"):
+    elif messageContent.find(getCommendString("random_get_member"))!=-1:
         command = getCommendString("random_get_member")
         try:
             memberList = api_getGroupMembers(bot,message.group_id)
-            if message.raw_message == command:
+            if messageContent == command:
                 theMember = random.choice(memberList)
                 echo_text = f"抽到 {theMember.nickname}\n"
                 echo_text += f"[CQ:image,summary=[{theMember.nickname}],url=http://q.qlogo.cn/headimg_dl?dst_uin={theMember.user_id}&spec=640&img_type=jpg]\n"
                 await message.reply(text=echo_text)
-            elif message.raw_message[:len(command)] == command:
-                numstr = message.raw_message[len(command):].replace(' ','')
+            else:
+                numstr = messageContent[len(command):].replace(' ','')
                 num = int(numstr)
                 if num<0 or num>5 or num>len(memberList):
                     await message.reply("PINKCANDY: num error")
@@ -64,21 +65,28 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
                             echo_text += "\n"
                         await message.reply(text=echo_text)
         except Exception as e: print(f"PINKCANDY ERROR:{e}")
-    # TODO 延时发送信息
-    elif False:
-        pass
+    # 列出特别日期
+    elif messageContent==getCommendString("list_dates"):
+        dateRemindResult :list = get_dates() # type: ignore
+        dateList = []
+        remindText = f"===特别日期===\n"
+        if dateRemindResult:
+            for obj in dateRemindResult:
+                dateList.append({
+                    'date':obj['date'],
+                    'title':obj['title'],
+                })
+        if len(dateList)>0:
+            for obj in dateList:
+                theDate :datetime.date = obj['date']
+                remindText += f"{theDate.month}月{theDate.day}日 - {obj['title']}\n"
+        await bot.api.post_group_msg(group_id=groupId,text=remindText)
     # 概率触发
     else:
         # 跟着说话
         if random.randint(0,199)<1:
             try:
                 session_id = str(groupId)
-                result = await bot.api.get_group_msg_history(
-                    group_id=groupId,
-                    message_seq=0,
-                    count=3,
-                    reverse_order=False
-                )
                 theMessageList:list = await api_getGroupMessageHistory(bot,groupId,20)
                 if theMessageList:
                     messagesString = ""

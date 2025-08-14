@@ -30,3 +30,13 @@ async def api_getGroupMember(bot:BotClient,groupId:int|str,userId:int|str):
         no_cache=True
     )
     return member
+
+# 获取qq用户信息
+async def api_getUser(bot:BotClient,userId:int|str):
+    res = await bot.api.get_stranger_info(user_id=userId)
+    return res
+
+# 获取qq群聊信息
+async def api_getGroups(bot:BotClient,groupId:int|str):
+    res = await bot.api.get_group_info(group_id=groupId)
+    return res

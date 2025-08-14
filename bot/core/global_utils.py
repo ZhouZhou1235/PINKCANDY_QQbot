@@ -1,15 +1,13 @@
 # 全局通用工具
 
-import asyncio
 from functools import wraps
 import random
 import re
 import time
+import datetime
 from typing import Any, Callable, List
 from core.config_manager import config_manager
 from ncatbot.core import GroupMessage,PrivateMessage
-import threading
-from datetime import datetime
 from typing import Callable, Any
 
 
@@ -72,60 +70,20 @@ def inputStatement(message:GroupMessage|PrivateMessage):
     text += clean_msg
     return text
 
-# 定时任务
-class Scheduler:
-    def __init__(self):
-        self.tasks = []
-        self.active = True
-        self.thread = threading.Thread(target=self._run)
-        self.thread.daemon = True
-        self.thread.start()
-        self.loop = asyncio.new_event_loop()
-    def _run(self):
-        while self.active:
-            now = time.time()
-            for task in self.tasks:
-                if now>=task['time']:
-                    try:
-                        result = task['func']()
-                        if asyncio.iscoroutine(result):
-                            self.loop.run_until_complete(result)
-                    except Exception as e:
-                        print(e)
-                    if task['loop']:
-                        task['time'] = now+task['interval']
-                    else:
-                        self.tasks.remove(task)
-            time.sleep(0.1)
-    # 定时执行任务
-    def schedule_task(self,func:Callable,delay:float,loop=False,args=(),kwargs=None):
-        if kwargs is None: kwargs={}
-        async def wrapper():
-            if asyncio.iscoroutinefunction(func):
-                return await func(*args, **kwargs)
-            return func(*args, **kwargs)
-        self.tasks.append({
-            'func': wrapper,
-            'time': time.time() + delay,
-            'interval': delay,
-            'loop': loop
-        })
-    # 指定时间执行任务
-    def schedule_todo(self,func,daytime,args=(),kwargs=None):
-        if kwargs is None: kwargs={}
-        if isinstance(daytime, datetime):
-            daytime = daytime.timestamp()
-        async def wrapper():
-            if asyncio.iscoroutinefunction(func):
-                return await func(*args, **kwargs)
-            return func(*args, **kwargs)
-        self.tasks.append({
-            'func': wrapper,
-            'time': daytime,
-            'interval': 0,
-            'loop': False
-        })
-    # 终止所有任务
-    def stop_all_schedule(self):
-        self.tasks.clear()
-        self.active = False
+# 获取今天指定时间的时间戳
+def get_today_timestamp(hour:int,minute=0,second=0):
+    today = datetime.datetime.today()
+    specified_time = datetime.time(hour,minute,second)
+    specified_datetime = datetime.datetime.combine(today,specified_time)
+    return specified_datetime.timestamp()
+
+# 获取监听的群聊
+def get_listening_groups(): return config_manager.bot_config.listen_qq_groups
+
+# 获取管理员账号列表
+def get_admin_list(): return config_manager.bot_config.admin_list
+
+# 是否同一天
+def isEquelDate(date1:datetime.date,date2=datetime.date):
+    if date1.month==date2.month and date1.day==date2.day: return True
+    else: return False
