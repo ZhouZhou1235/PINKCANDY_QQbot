@@ -1,5 +1,6 @@
 # 全局通用工具
 
+import asyncio
 from functools import wraps
 import random
 import re
@@ -9,6 +10,8 @@ from typing import Any, Callable, List
 from core.config_manager import config_manager
 from ncatbot.core import GroupMessage,PrivateMessage
 from typing import Callable, Any
+from ncatbot.core import BotClient
+from functions.share_functions import *
 
 
 at_pattern = rf'\[CQ:at,qq={config_manager.bot_config.qq_number}\]|@{config_manager.bot_config.bot_name}|@{config_manager.bot_config.qq_number}'
@@ -87,3 +90,89 @@ def get_admin_list(): return config_manager.bot_config.admin_list
 def isEquelDate(date1:datetime.date,date2=datetime.date):
     if date1.month==date2.month and date1.day==date2.day: return True
     else: return False
+
+# 刷新定时器
+def updateScheduler(bot:BotClient):
+    # 清空任务
+    config_manager.scheduler.clear_tasks()
+    # 每日执行一次
+    # TODO 存在固定代码 尝试分开此处的逻辑
+    async def schedule_oneday(bot:BotClient):
+        # 日期提醒
+        # TODO 临近日期
+        dateRemindResult :list = get_dates() # type: ignore
+        today = datetime.date.today()
+        dateList = []
+        remindText = f"==={today.month}月{today.day}日 特别日期===\n"
+        if dateRemindResult:
+            for obj in dateRemindResult:
+                theDate = obj['date']
+                if isEquelDate(today,theDate): # type: ignore
+                    dateList.append({
+                        'date':obj['date'],
+                        'title':obj['title'],
+                    })
+        if len(dateList)>0:
+            for obj in dateList:
+                remindText += f"{obj['title']}\n"
+            for groupId in get_listening_groups():
+                await bot.api.post_group_msg(group_id=groupId,text=remindText)
+    config_manager.scheduler.schedule_task(
+        lambda: asyncio.create_task(schedule_oneday(bot)),
+        60*60*24,
+        True,
+        get_today_timestamp(hour=10)
+    )
+    # 处理定时消息
+    # TODO ERROR 工作异常 
+    sql = "SELECT * FROM schedule_messages"
+    results = config_manager.mysql_connector.query_data(sql)
+    if results:
+        for item in results:
+            schedule_time = datetime.datetime.strptime(str(item['time']),'%Y-%m-%d %H:%M:%S')
+            message_text = item['message']
+            group_id = int(item['groupid'])
+            if item['isloop']==1:
+                def create_loop_task():
+                    async def loop_wrapper():
+                        await bot.api.post_group_msg(
+                            group_id=group_id,
+                            text=message_text
+                        )
+                    return loop_wrapper
+                # 计算首次执行时间
+                now = datetime.datetime.now()
+                initial_delay = (schedule_time-now).total_seconds()
+                if initial_delay < 0:
+                    loop_seconds = float(item['looptime'])
+                    initial_delay = loop_seconds - (abs(initial_delay)%loop_seconds)
+                config_manager.scheduler.schedule_task(
+                    create_loop_task(),
+                    float(item['looptime']),
+                    True,
+                    time.time()+initial_delay
+                )
+            else:
+                def create_one_time_task():
+                    async def one_time_wrapper():
+                        await bot.api.post_group_msg(
+                            group_id=group_id,
+                            text=message_text
+                        )
+                        config_manager.mysql_connector.execute_query(
+                            "DELETE FROM schedule_messages WHERE Id = %s",
+                            (item['Id'],)
+                        )
+                    return one_time_wrapper
+                delay = (schedule_time - datetime.datetime.now()).total_seconds()
+                if delay>0:
+                    config_manager.scheduler.schedule_task(
+                        create_one_time_task(),
+                        delay,
+                        False
+                    )
+                else:
+                    config_manager.mysql_connector.execute_query(
+                        "DELETE FROM schedule_messages WHERE Id = %s",
+                        (item['Id'],)
+                    )

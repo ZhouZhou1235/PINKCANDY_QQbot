@@ -12,6 +12,7 @@ from core.chat_robot import MemoryChatRobot
 
 
 # 定时任务
+# TODO 解决创建多个计时器无法工作的问题
 class Scheduler:
     def __init__(self):
         self.tasks = []
@@ -20,6 +21,7 @@ class Scheduler:
         self.thread.daemon = True
         self.thread.start()
         self.loop = asyncio.new_event_loop()
+        self.lock = threading.Lock()
     def _run(self):
         while self.active:
             now = time.time()
@@ -50,10 +52,10 @@ class Scheduler:
             'interval': delay,
             'loop': loop
         })
-    # 终止所有任务
-    def stop_all_schedule(self):
-        self.tasks.clear()
-        self.active = False
+    # 清空任务
+    def clear_tasks(self):
+        with self.lock:
+            self.tasks.clear()
 
 # 配置管理器
 class ConfigManager:

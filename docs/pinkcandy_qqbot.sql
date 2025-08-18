@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2025-08-14 21:36:04
+-- 生成日期： 2025-08-18 20:10:15
 -- 服务器版本： 8.0.12
 -- PHP 版本： 7.3.9
 
@@ -46,7 +46,7 @@ CREATE TABLE `group_chat_memories` (
   `history_json` json NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -60,7 +60,24 @@ CREATE TABLE `private_chat_memories` (
   `history_json` json NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `schedule_messages`
+--
+
+DROP TABLE IF EXISTS `schedule_messages`;
+CREATE TABLE `schedule_messages` (
+  `Id` int(11) NOT NULL,
+  `time` datetime NOT NULL,
+  `message` varchar(1024) COLLATE utf8mb4_general_ci NOT NULL,
+  `groupid` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
+  `isloop` int(11) NOT NULL,
+  `looptime` int(11) NOT NULL,
+  `addtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- 转储表的索引
@@ -83,6 +100,22 @@ ALTER TABLE `group_chat_memories`
 --
 ALTER TABLE `private_chat_memories`
   ADD PRIMARY KEY (`session_id`);
+
+--
+-- 表的索引 `schedule_messages`
+--
+ALTER TABLE `schedule_messages`
+  ADD PRIMARY KEY (`Id`);
+
+--
+-- 在导出的表使用AUTO_INCREMENT
+--
+
+--
+-- 使用表AUTO_INCREMENT `schedule_messages`
+--
+ALTER TABLE `schedule_messages`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

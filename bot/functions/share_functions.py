@@ -1,7 +1,5 @@
 # 共用的函数
 
-import datetime
-from ncatbot.core import BotClient
 from core.config_manager import config_manager
 
 
