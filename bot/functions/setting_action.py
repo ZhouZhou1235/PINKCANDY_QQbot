@@ -1,11 +1,14 @@
 # 设置功能
 
+import re
+import datetime
 from ncatbot.core import GroupMessage
 from ncatbot.core import BotClient
 from core.napcat_api import *
 from core.data_models import *
 from core.global_utils import *
 from core.config_manager import config_manager
+from functions.share_functions import *
 
 
 # 在群聊中设置功能
@@ -65,3 +68,15 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
                     else:
                         await message.reply(text="PINKCANDY ERROR: add date failed.")
             except Exception as e: print(e)
+        # 添加一次定时
+        elif messageContent.find(getCommendString("add_schedule")) != -1:
+            await add_schedule_task(bot,message,False)
+        # 添加重复定时
+        elif messageContent.find(getCommendString("add_loop_schedule")) != -1:
+            await add_schedule_task(bot,message,True)
+        # 取消定时
+        elif messageContent.find(getCommendString("delete_schedule")) != -1:
+            await delete_schedule_task(bot, message)
+        # 列出定时任务
+        elif messageContent == getCommendString("list_schedule"):
+            await list_schedule_tasks(bot, message)

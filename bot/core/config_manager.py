@@ -37,7 +37,6 @@ class Scheduler:
                         self.tasks.remove(task)
             time.sleep(0.1)
     # 定时执行任务
-    # args=(var1,) 逗号不可去除 表示元组
     def schedule_task(self,func:Callable,delay:float,loop=False,beginTime=time.time(),args=(),kwargs=None):
         if kwargs is None: kwargs={}
         async def wrapper():
@@ -50,9 +49,12 @@ class Scheduler:
             'interval': delay,
             'loop': loop
         })
-    # 终止所有任务
-    def stop_all_schedule(self):
+    # 清空任务
+    def clear_all_tasks(self):
         self.tasks.clear()
+    # 终止计时器
+    def stop_scheduler(self):
+        self.clear_all_tasks()
         self.active = False
 
 # 配置管理器
@@ -75,6 +77,7 @@ class ConfigManager:
         self.bot_config = BotConfig.load(config_data) # 配置
         self.mysql_connector = MySQLConnecter(self.bot_config) # MySQL连接者
         self.chat_robot = MemoryChatRobot(self.bot_config,self.mysql_connector) # 聊天机器人
-        self.scheduler = Scheduler() # 定时任务
+        self.date_scheduler = Scheduler() # 日期定时任务
+        self.message_scheduler = Scheduler() # 消息定时任务
 
 config_manager = ConfigManager()

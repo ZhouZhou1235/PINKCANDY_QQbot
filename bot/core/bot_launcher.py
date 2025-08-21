@@ -41,19 +41,20 @@ def add_default_event_to_bot(bot:BotClient):
     add_listen_event(bot,group_setting_action)
     add_listen_event(bot,private_chat_with_robot,False)
 
-# 为客户端添加默认定时任务
-def add_default_schedule_to_bot(bot:BotClient):
-    config_manager.scheduler.schedule_task(
+# 开始时设置定时任务
+def begin_add_schedule(bot:BotClient):
+    config_manager.date_scheduler.schedule_task(
         schedule_oneday,
         60*60*24,
         True,
         get_today_timestamp(hour=10),
         args=(bot,)
     )
+    load_scheduled_messages(bot)
 
 # 创建客户端
 def create_bot(): 
     bot = BotClient()
     add_default_event_to_bot(bot)
-    add_default_schedule_to_bot(bot)
+    begin_add_schedule(bot)
     return bot
