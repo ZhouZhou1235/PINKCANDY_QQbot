@@ -66,16 +66,18 @@ class MemoryChatRobot:
     def clear_memories(self):
         self.chat_histories.clear()
     # 加载私聊历史对话
-    async def load_private_chat(self,session_id:str):
+    async def load_private_chat(self, session_id: str):
         sql = f"""
             SELECT history_json
             FROM private_chat_memories
             WHERE session_id='{session_id}'
         """
         result = self.db.query_data(sql)
-        if result:
-            history = json.loads(result['history_json'])  # type: ignore
-            return self.limit_history_length(history)
+        if result and isinstance(result,list) and len(result)>0:
+            history_json = result[0].get('history_json')
+            if history_json:
+                history = json.loads(history_json)
+                return self.limit_history_length(history)
         return []
     # 私聊保存到数据库
     async def save_private_chat(self,session_id:str,history:List[dict]):
@@ -126,9 +128,11 @@ class MemoryChatRobot:
             WHERE session_id='{session_id}'
         """
         result = self.db.query_data(sql)
-        if result:
-            history = json.loads(result['history_json'])  # type: ignore
-            return self.limit_history_length(history)
+        if result and isinstance(result, list) and len(result)>0:
+            history_json = result[0].get('history_json')
+            if history_json:
+                history = json.loads(history_json)
+                return self.limit_history_length(history)
         return []
     # 群聊保存到数据库
     async def save_group_chat(self,session_id:str,history:List[dict]):
