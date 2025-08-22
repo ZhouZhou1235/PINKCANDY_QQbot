@@ -70,11 +70,10 @@ def inputStatement(message:GroupMessage|PrivateMessage):
     text += clean_msg
     return text
 
-# 获取今天指定时间的时间戳
-def get_today_timestamp(hour:int,minute=0,second=0):
-    today = datetime.datetime.today()
+# 获取指定时间的时间戳
+def get_date_timestamp(date=datetime.datetime.today(),hour=0,minute=0,second=0):
     specified_time = datetime.time(hour,minute,second)
-    specified_datetime = datetime.datetime.combine(today,specified_time)
+    specified_datetime = datetime.datetime.combine(date,specified_time)
     return specified_datetime.timestamp()
 
 # 获取监听的群聊

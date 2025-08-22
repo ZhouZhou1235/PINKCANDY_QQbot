@@ -9,6 +9,7 @@ from core.data_models import *
 from core.global_utils import *
 from core.config_manager import config_manager
 from functions.share_functions import *
+from functions.schedule_event import *
 
 
 # 在群聊中设置功能
@@ -17,6 +18,7 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
     if message.group_id in get_listening_groups():
         # 仅管理员
         if message.user_id in get_admin_list():
+            # 抹除记忆
             if messageContent==getCommendString("clear_memories"):
                 config_manager.chat_robot.clear_memories()
                 config_manager.mysql_connector.execute_query("TRUNCATE group_chat_memories")
@@ -37,6 +39,11 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
                         else:
                             await message.reply(text="PINKCANDY ERROR: delete date failed.")
                 except Exception as e: print(e)
+            # 执行日期定时事件
+            elif messageContent.find(getCommendString("do_schedule"))!=-1:
+                await schedule_oneday(bot)
+                await schedule_threeday(bot)
+                await schedule_week(bot)
         # 列出管理员
         if messageContent==getCommendString("list_admin"):
             text = "===管理员===\n"

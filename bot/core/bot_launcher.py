@@ -47,10 +47,24 @@ def begin_add_schedule(bot:BotClient):
         schedule_oneday,
         60*60*24,
         True,
-        get_today_timestamp(hour=10),
+        get_date_timestamp(hour=10),
         args=(bot,)
     )
-    load_scheduled_messages(bot)
+    config_manager.date_scheduler.schedule_task(
+        schedule_threeday,
+        60*60*24*3,
+        True,
+        get_date_timestamp(hour=11),
+        args=(bot,)
+    )
+    config_manager.date_scheduler.schedule_task(
+        schedule_week,
+        60*60*24*7,
+        True,
+        get_date_timestamp(hour=12),
+        args=(bot,)
+    )
+    updateMessageScheduler(bot)
 
 # 创建客户端
 def create_bot(): 

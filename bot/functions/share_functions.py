@@ -10,10 +10,10 @@ from core.global_utils import *
 
 
 # 查询特别日期
-def get_dates(): return config_manager.mysql_connector.query_data("SELECT * FROM date_reminder")
+def get_dates(): return config_manager.mysql_connector.query_data("SELECT * FROM date_reminder ORDER BY date")
 
-# 载入定时说话
-def load_scheduled_messages(bot: BotClient):
+# 更新定时说话定时器
+def updateMessageScheduler(bot: BotClient):
     try:
         config_manager.mysql_connector.execute_query("DELETE FROM schedule_messages WHERE time<NOW() and isloop=0")
         config_manager.message_scheduler.clear_all_tasks()
@@ -103,7 +103,7 @@ async def delete_schedule_task(bot:BotClient,message:GroupMessage):
         sql = "DELETE FROM schedule_messages WHERE Id = %s"
         result = config_manager.mysql_connector.execute_query(sql,(task_id,))
         if result:
-            load_scheduled_messages(bot)
+            updateMessageScheduler(bot)
             await message.reply("PINKCANDY: delete schedule done.")
         else:
             await message.reply("PINKCANDY: delete schedule failed!")
@@ -111,7 +111,7 @@ async def delete_schedule_task(bot:BotClient,message:GroupMessage):
     except Exception as e: print(f"PINKCANDY ERROR: {e}")
 
 # 列出所有定时任务
-async def list_schedule_tasks(bot: BotClient, message: GroupMessage):
+async def list_schedule_tasks(bot: BotClient,message:GroupMessage):
     try:
         config_manager.mysql_connector.execute_query("DELETE FROM schedule_messages WHERE time<NOW() and isloop=0")
         sql = f"SELECT * FROM schedule_messages WHERE groupid={message.group_id} ORDER BY isloop,time DESC LIMIT 50"
@@ -130,3 +130,50 @@ async def list_schedule_tasks(bot: BotClient, message: GroupMessage):
             text += "---\n"
         await bot.api.post_group_msg(group_id=message.group_id, text=text)
     except Exception as e: print(f"PINKCANDY ERROR: {e}")
+
+# 特别日期提醒
+async def remind_date(bot:BotClient):
+    dateRemindResult = get_dates()
+    today = datetime.date.today()
+    dateList = []
+    remindText = f"==={today.month}月{today.day}日 特别日期===\n"
+    if dateRemindResult:
+        for obj in dateRemindResult:
+            theDate :datetime.date = obj['date']
+            theDict = {
+                'date':obj['date'],
+                'title':obj['title'],
+            }
+            if isEquelDate(today,theDate): # type: ignore
+                dateList.append(theDict)
+    if len(dateList)>0:
+        for obj in dateList: remindText+=f"{obj['title']}\n"
+        for groupId in get_listening_groups():
+            await bot.api.post_group_msg(group_id=groupId,text=remindText)
+
+# 临近特别日期提醒
+async def remind_neardate(bot:BotClient,groupId:str|int|None=None):
+    dateRemindResult = get_dates()
+    today = datetime.date.today()
+    dateNearList = []
+    remindNearText = f"===临近特别日期===\n"
+    if dateRemindResult:
+        for obj in dateRemindResult:
+            theDate :datetime.date = obj['date']
+            theDict = {
+                'date':obj['date'],
+                'title':obj['title'],
+            }
+            # TODO 改变判断方法
+            if abs(theDate.day-today.day)<=7 and theDate.day>today.day and theDate.month==today.month:
+                dateNearList.append(theDict)
+    if len(dateNearList)>0:
+        for obj in dateNearList:
+            theDate :datetime.date = obj['date']
+            remindNearText+=f"{theDate.month}月{theDate.day}日 {obj['title']}\n"
+        remindNearText="" if len(dateNearList)==0 else remindNearText
+        if groupId==None:
+            for groupId in get_listening_groups():
+                await bot.api.post_group_msg(group_id=groupId,text=remindNearText)
+        else:
+            await bot.api.post_group_msg(group_id=groupId,text=remindNearText)
