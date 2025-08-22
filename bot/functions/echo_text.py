@@ -51,7 +51,7 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
                 echo_text += f"[CQ:image,summary=[{theMember.nickname}],url=http://q.qlogo.cn/headimg_dl?dst_uin={theMember.user_id}&spec=640&img_type=jpg]\n"
                 await message.reply(text=echo_text)
             else:
-                numstr = messageContent[len(command):].replace(' ','')
+                numstr = messageContent[len(command)+1:].replace(' ','')
                 num = int(numstr)
                 if num<0 or num>5 or num>len(memberList):
                     await message.reply("PINKCANDY: num error")
@@ -81,20 +81,23 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
                 theDate :datetime.date = obj['date']
                 remindText += f"{theDate.month}月{theDate.day}日 - {obj['title']}\n"
         await bot.api.post_group_msg(group_id=groupId,text=remindText)
+    # 临近日期提醒
+    elif messageContent==getCommendString("remind_neardate"):
+        await remind_neardate(bot,groupId)
     # 概率触发
     else:
         # 跟着说话
         if random.randint(0,199)<1:
             try:
                 session_id = str(groupId)
-                theMessageList:list = await api_getGroupMessageHistory(bot,groupId,20)
+                theMessageList:list = await api_getGroupMessageHistory(bot,groupId,25)
                 if theMessageList:
                     messagesString = ""
                     for m in theMessageList:
                         messagesString += f"[id{m['sender']['user_id']} nickname{m['sender']['user_id']}:{m['raw_message']}]"
                     auto_input = f"""
                         {messagesString}
-                        根据上面的聊天跟着说句话，不要发负面内容。不宜超过20字。
+                        根据上面的聊天跟着说句话，不要发负面内容。不宜超过25字。
                     """
                     response = await config_manager.chat_robot.group_chat(session_id,auto_input)
                     await bot.api.post_group_msg(group_id=groupId, text=str(response))
