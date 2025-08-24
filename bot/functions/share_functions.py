@@ -13,7 +13,7 @@ from core.global_utils import *
 def get_dates(): return config_manager.mysql_connector.query_data("SELECT * FROM date_reminder ORDER BY date")
 
 # 更新定时说话定时器
-def updateMessageScheduler(bot: BotClient):
+def updateMessageScheduler(bot:BotClient):
     try:
         config_manager.mysql_connector.execute_query("DELETE FROM schedule_messages WHERE time<NOW() and isloop=0")
         config_manager.message_scheduler.clear_all_tasks()
@@ -21,20 +21,26 @@ def updateMessageScheduler(bot: BotClient):
         if result:
             print(result)
             for obj in result:
-                time :datetime.datetime = obj['time']
+                task_time = obj['time']
                 groupid = obj['groupid']
                 content = obj['message']
                 is_loop = int(obj['isloop'])==1
                 interval_seconds = int(obj['looptime'])
-                start_timestamp = time.timestamp()
-                def send_scheduled_message(bot:BotClient,group_id:int,message_content:str):
-                    bot.api.post_group_msg_sync(group_id=group_id,text=message_content)
+                if isinstance(task_time, datetime.datetime):
+                    start_timestamp = task_time.timestamp()
+                else:
+                    start_timestamp = time.mktime(task_time.timetuple())
+                current_time = time.time()
+                if start_timestamp < current_time and is_loop:
+                    while start_timestamp < current_time:
+                        start_timestamp += interval_seconds
+                def send_scheduled_message():
+                    bot.api.post_group_msg_sync(group_id=groupid,text=content)
                 config_manager.message_scheduler.schedule_task(
                     send_scheduled_message,
                     interval_seconds if is_loop else 0,
                     is_loop,
-                    start_timestamp,
-                    (bot,groupid,content)
+                    start_timestamp
                 )
     except Exception as e: print(e)
 
@@ -67,6 +73,10 @@ async def add_schedule_task(bot:BotClient,message:GroupMessage,is_loop:bool):
             message_content = match.group(2)
             start_timestamp = time.time() + (delay_minutes*60)
             interval_seconds = 0
+        current_time = time.time()
+        if start_timestamp < current_time and is_loop:
+            while start_timestamp < current_time:
+                start_timestamp += interval_seconds
         sql = """
             INSERT INTO schedule_messages(time,message,groupid,isloop,looptime,addtime)
             VALUES (%s,%s,%s,%s,%s,NOW())
@@ -160,20 +170,29 @@ async def remind_neardate(bot:BotClient,groupId:str|int|None=None):
     if dateRemindResult:
         for obj in dateRemindResult:
             theDate :datetime.date = obj['date']
-            theDict = {
-                'date':obj['date'],
-                'title':obj['title'],
-            }
-            # TODO 改变判断方法
-            if abs(theDate.day-today.day)<=7 and theDate.day>today.day and theDate.month==today.month:
+            this_year_date = datetime.date(today.year, theDate.month, theDate.day)
+            days_diff = (this_year_date - today).days
+            if 0 <= days_diff <= 7:
+                theDict = {
+                    'date': this_year_date,
+                    'title': obj['title'],
+                    'days_diff': days_diff
+                }
                 dateNearList.append(theDict)
-    if len(dateNearList)>0:
+    dateNearList.sort(key=lambda x: x['days_diff'])
+    if len(dateNearList) > 0:
         for obj in dateNearList:
             theDate :datetime.date = obj['date']
-            remindNearText+=f"{theDate.month}月{theDate.day}日 {obj['title']}\n"
-        remindNearText="" if len(dateNearList)==0 else remindNearText
-        if groupId==None:
-            for groupId in get_listening_groups():
-                await bot.api.post_group_msg(group_id=groupId,text=remindNearText)
+            days_diff = obj['days_diff']
+            if days_diff == 0:
+                day_text = "[今天]"
+            elif days_diff == 1:
+                day_text = "[明天]"
+            else:
+                day_text = f"[{days_diff}天后]"
+            remindNearText += f"{theDate.month}月{theDate.day}日{day_text} {obj['title']}\n"
+        if groupId is None:
+            for group_id in get_listening_groups():
+                await bot.api.post_group_msg(group_id=group_id, text=remindNearText)
         else:
-            await bot.api.post_group_msg(group_id=groupId,text=remindNearText)
+            await bot.api.post_group_msg(group_id=groupId, text=remindNearText)
