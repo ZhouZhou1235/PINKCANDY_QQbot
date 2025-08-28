@@ -19,29 +19,42 @@ def updateMessageScheduler(bot:BotClient):
         config_manager.message_scheduler.clear_all_tasks()
         result = config_manager.mysql_connector.query_data("SELECT * FROM schedule_messages")
         if result:
-            print(result)
             for obj in result:
-                task_time = obj['time']
+                task_time :datetime.datetime = obj['time']
                 groupid = obj['groupid']
                 content = obj['message']
                 is_loop = int(obj['isloop'])==1
                 interval_seconds = int(obj['looptime'])
-                if isinstance(task_time, datetime.datetime):
-                    start_timestamp = task_time.timestamp()
-                else:
-                    start_timestamp = time.mktime(task_time.timetuple())
                 current_time = time.time()
-                if start_timestamp < current_time and is_loop:
-                    while start_timestamp < current_time:
-                        start_timestamp += interval_seconds
+                start_timestamp = task_time.timestamp()
                 def send_scheduled_message():
                     bot.api.post_group_msg_sync(group_id=groupid,text=content)
-                config_manager.message_scheduler.schedule_task(
-                    send_scheduled_message,
-                    interval_seconds if is_loop else 0,
-                    is_loop,
-                    start_timestamp
-                )
+                if is_loop:
+                    if start_timestamp < current_time:
+                        today = datetime.datetime.now()
+                        new_time = datetime.datetime(
+                            today.year,today.month,today.day,
+                            task_time.hour,task_time.minute,task_time.second
+                        )
+                        start_timestamp = new_time.timestamp()
+                        if start_timestamp < current_time:
+                            start_timestamp += 24*60*60
+                    config_manager.message_scheduler.schedule_task(
+                        send_scheduled_message,
+                        start_timestamp-current_time,
+                    )
+                    config_manager.message_scheduler.schedule_task(
+                        send_scheduled_message,
+                        interval_seconds,
+                        True,
+                        start_timestamp
+                    )
+                else:
+                    if start_timestamp > current_time:
+                        config_manager.message_scheduler.schedule_task(
+                            send_scheduled_message,
+                            start_timestamp-current_time,
+                        )
     except Exception as e: print(e)
 
 # 添加定时任务
@@ -90,15 +103,7 @@ async def add_schedule_task(bot:BotClient,message:GroupMessage,is_loop:bool):
         )
         result = config_manager.mysql_connector.execute_query(sql,params)
         if result:
-            def send_scheduled_message(bot:BotClient,group_id:int,message_content:str):
-                bot.api.post_group_msg_sync(group_id=group_id,text=message_content)
-            config_manager.message_scheduler.schedule_task(
-                send_scheduled_message,
-                interval_seconds if is_loop else 0,
-                is_loop,
-                start_timestamp,
-                (bot,message.group_id,message_content)
-            )
+            updateMessageScheduler(bot)
             await message.reply(f"PINKCANDY: add schedule done.")
         else:
             await message.reply("PINKCANDY: add schedule failed!")

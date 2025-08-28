@@ -151,25 +151,23 @@ class MemoryChatRobot:
     async def group_chat(self,session_id:str,user_input:str,save=True):
         try:
             history = await self.load_group_chat(session_id)
-            user_msg = {"type": "human","content": user_input}
-            history.append(user_msg)
-            self.save_message(session_id, user_msg)
             if session_id not in self.chat_histories:
                 self.chat_histories[session_id] = history.copy() 
+            user_msg = {"type": "human","content": user_input}
+            self.save_message(session_id, user_msg)
             chain = self.get_chain(session_id)
             response = await asyncio.to_thread(
                 chain.invoke,
                 {
                     "input": user_input,
                     "session_id": session_id,
-                    "history": self.format_history(session_id)
                 }
             )
             ai_msg = {"type": "ai", "content": response.content}
             if save:
-                history.append(ai_msg)
                 self.save_message(session_id, ai_msg)
-                await self.save_group_chat(session_id, history)
+                current_history = self.chat_histories.get(session_id,[])
+                await self.save_group_chat(session_id,current_history)
             return response.content
         except Exception as e:
             print(f"PINKCANDY CHAT ERROR: {e}")

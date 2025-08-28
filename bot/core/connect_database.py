@@ -35,6 +35,7 @@ class MySQLConnecter:
     # 执行SQL语句
     def execute_query(self,sql:str,params=None):
         try:
+            self.connection.ping(reconnect=True)
             with self.connection.cursor() as cursor:
                 if params: return cursor.execute(sql,params)
                 return cursor.execute(sql)
