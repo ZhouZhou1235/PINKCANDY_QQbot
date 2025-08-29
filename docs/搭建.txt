@@ -4,17 +4,9 @@
 === 前置条件 ===
 安装python环境
 安装QQ
+安装napcat
 启动MySQL 创建相应数据库和表 pinkcandy_qqbot.sql
-在项目文件夹根目录放置 NapCat
 编写机器人配置文件 bot_config_demo.json
-
-[linux]
-napcat 官方提供的安装脚本
-curl -o \
-napcat.sh \
-https://nclatest.znin.net/NapNeko/NapCat-Installer/main/script/install.sh \
-&& sudo bash napcat.sh
-
 
 === 程序创建 ===
 bot即为应用文件夹，或者说项目根目录。

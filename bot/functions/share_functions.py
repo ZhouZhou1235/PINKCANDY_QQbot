@@ -27,8 +27,12 @@ def updateMessageScheduler(bot:BotClient):
                 interval_seconds = int(obj['looptime'])
                 current_time = time.time()
                 start_timestamp = task_time.timestamp()
-                def send_scheduled_message():
-                    bot.api.post_group_msg_sync(group_id=groupid,text=content)
+                # 用函数闭包 捕获本循环的content
+                def create_send_function(msg_content):
+                    def send_function():
+                        bot.api.post_group_msg_sync(group_id=groupid,text=msg_content)
+                    return send_function
+                send_func = create_send_function(content)
                 if is_loop:
                     if start_timestamp < current_time:
                         today = datetime.datetime.now()
@@ -40,21 +44,15 @@ def updateMessageScheduler(bot:BotClient):
                         if start_timestamp < current_time:
                             start_timestamp += 24*60*60
                     config_manager.message_scheduler.schedule_task(
-                        send_scheduled_message,
-                        start_timestamp-current_time,
-                    )
-                    config_manager.message_scheduler.schedule_task(
-                        send_scheduled_message,
+                        send_func,
                         interval_seconds,
                         True,
                         start_timestamp
                     )
-                else:
-                    if start_timestamp > current_time:
-                        config_manager.message_scheduler.schedule_task(
-                            send_scheduled_message,
-                            start_timestamp-current_time,
-                        )
+                config_manager.message_scheduler.schedule_task(
+                    send_func,
+                    start_timestamp - current_time,
+                )
     except Exception as e: print(e)
 
 # 添加定时任务
@@ -135,15 +133,14 @@ async def list_schedule_tasks(bot: BotClient,message:GroupMessage):
             await message.reply("PINKCANDY: empty schedule.")
             return
         text = "===本群定时说话===\n"
-        for task in results: # type: ignore
-            task_time = task['time'].strftime("%Y-%m-%d %H:%M") if isinstance(task['time'], datetime.datetime) else str(task['time'])
-            task_type = "重复" if task['isloop'] else "一次"
-            text += f"{task['Id']} | {task_type} | {task_time}\n"
-            text += f"{task['message'][:50]}...\n"
+        for task in results:
+            task_time :datetime.datetime = task['time']
+            timestr = task_time.strftime("%Y-%m-%d %H:%M")
             if task['isloop']:
-                text += f"间隔{task['looptime']//60}分钟\n"
-            text += "---\n"
-        await bot.api.post_group_msg(group_id=message.group_id, text=text)
+                text += f"Id{task['Id']} {timestr}开始 每{task['looptime']//60}分钟发 {task['message'][:50]}\n---\n"
+            else:
+                text += f"Id{task['Id']} {timestr}发 {task['message'][:50]}\n---\n"
+        await bot.api.post_group_msg(group_id=message.group_id,text=text)
     except Exception as e: print(f"PINKCANDY ERROR: {e}")
 
 # 特别日期提醒
