@@ -27,12 +27,11 @@ def updateMessageScheduler(bot:BotClient):
                 interval_seconds = int(obj['looptime'])
                 current_time = time.time()
                 start_timestamp = task_time.timestamp()
-                # 用函数闭包 捕获本循环的content
-                def create_send_function(msg_content):
+                def create_send_function(groupid,msg_content):
                     def send_function():
                         bot.api.post_group_msg_sync(group_id=groupid,text=msg_content)
                     return send_function
-                send_func = create_send_function(content)
+                send_func = create_send_function(groupid,content)
                 if is_loop:
                     if start_timestamp < current_time:
                         today = datetime.datetime.now()
