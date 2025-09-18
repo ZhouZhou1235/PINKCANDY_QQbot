@@ -39,25 +39,38 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
                         else:
                             await message.reply(text="PINKCANDY ERROR: delete date failed.")
                 except Exception as e: print(e)
-            # 执行日期定时事件
-            elif messageContent.find(getCommendString("do_schedule"))!=-1:
+            # 立即执行定时事件
+            elif messageContent.find(getCommendString("do_schedule"))!=-1 and message.user_id is config_manager.bot_config.master_number:
                 await schedule_oneday(bot)
                 await schedule_threeday(bot)
                 await schedule_week(bot)
+            # 列出服务的群聊
+            elif messageContent==getCommendString("list_groups"):
+                text = "===服务群聊===\n"
+                for groupId in get_listening_groups():
+                    res = await api_getGroups(bot,groupId)
+                    text += f"{res['data']['group_name']}\n"
+                await bot.api.post_group_msg(group_id=message.group_id,text=text)
+            # 列出完全展示内容的群聊
+            elif messageContent==getCommendString("list_fullshow_groups"):
+                text = "===完全展示内容的群聊===\n"
+                for groupId in get_fullshow_groups():
+                    res = await api_getGroups(bot,groupId)
+                    text += f"{res['data']['group_name']}\n"
+                await bot.api.post_group_msg(group_id=message.group_id,text=text)
         # 列出管理员
         if messageContent==getCommendString("list_admin"):
             text = "===管理员===\n"
+            res = await api_getUser(bot,config_manager.bot_config.master_number)
+            text += f"[机器主宰]{res['data']['nick']}\n"
             for admin_userId in get_admin_list():
                 res = await api_getUser(bot,admin_userId)
-                text += f"{res['data']['nick']}\n"
-            await bot.api.post_group_msg(group_id=message.group_id,text=text)
-        # 列出服务的群聊
-        if messageContent==getCommendString("list_groups"):
-            text = "===服务群聊===\n"
-            for groupId in get_listening_groups():
-                res = await api_getGroups(bot,groupId)
-                print(res)
-                text += f"{res['data']['group_name']}\n"
+                if message.group_id in config_manager.bot_config.full_show_groups:
+                    text += f"{res['data']['nick']}\n"
+                else:
+                    name = res['data']['nick']
+                    name = '......'+name[len(name)-3:]
+                    text += f"{name}\n"
             await bot.api.post_group_msg(group_id=message.group_id,text=text)
         # 添加特别日期
         elif messageContent.find(getCommendString("add_date"))!=-1:

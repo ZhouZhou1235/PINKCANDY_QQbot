@@ -79,6 +79,9 @@ def get_date_timestamp(date=datetime.datetime.today(),hour=0,minute=0,second=0):
 # 获取监听的群聊
 def get_listening_groups(): return config_manager.bot_config.listen_qq_groups
 
+# 获取完全展示的群聊
+def get_fullshow_groups(): return config_manager.bot_config.full_show_groups
+
 # 获取管理员账号列表
 def get_admin_list(): return config_manager.bot_config.admin_list
 

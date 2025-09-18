@@ -4,6 +4,7 @@ import platform
 import random
 import psutil
 import requests
+import asyncio
 from ncatbot.core import GroupMessage
 from ncatbot.core import BotClient
 from core.napcat_api import *
@@ -31,11 +32,12 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
         bot.api.post_group_msg_sync(group_id=groupId,text=help_text)
     # 测试
     elif messageContent==getCommendString("test"):
+        gallery_system_web = "https://gallery-system.pinkcandy.top"
         try:
             replyText = "===\n机器运行测试\n===\n"
             replyText += f"{platform.uname().node} {platform.uname().system} {platform.uname().release}\n"
-            replyText += f"载体状态 CPU-{psutil.cpu_percent(interval=1)}% 内存-{psutil.virtual_memory().percent}%\n"
-            replyText += f"幻想动物画廊 {requests.post(config_manager.bot_config.GALLERY_SYSTEM_WEB).text}"
+            replyText += f"CPU-{psutil.cpu_percent(interval=1)}% 内存-{psutil.virtual_memory().percent}%\n"
+            replyText += f"粉糖画廊接口 {requests.post(gallery_system_web).text}"
             bot.api.post_group_msg_sync(group_id=groupId,text=replyText)
         except Exception as e:
             print(e)
@@ -79,8 +81,19 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
         if len(dateList)>0:
             for obj in dateList:
                 theDate :datetime.date = obj['date']
-                remindText += f"{theDate.month}月{theDate.day}日 - {obj['title']}\n"
-        await bot.api.post_group_msg(group_id=groupId,text=remindText)
+                if message.group_id in config_manager.bot_config.full_show_groups:
+                    remindText += f"{theDate.month}月{theDate.day}日 - {obj['title']}\n"
+                else:
+                    remindText += f"{theDate.month}月{theDate.day}日 - ......\n"
+        result = await bot.api.post_group_msg(group_id=groupId,text=remindText)
+        # 不完全展示的群一分钟后撤回
+        if message.group_id not in config_manager.bot_config.full_show_groups:
+            message_id = result['data']['message_id']
+            async def delete_after_delay():
+                await asyncio.sleep(10)
+                await bot.api.delete_msg(message_id=message_id)
+            asyncio.create_task(delete_after_delay())
+
     # 临近日期提醒
     elif messageContent==getCommendString("remind_neardate"):
         await remind_neardate(bot,groupId)

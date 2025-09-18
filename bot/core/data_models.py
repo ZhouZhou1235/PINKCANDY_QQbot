@@ -9,30 +9,30 @@ class BotConfig:
     bot_name :str
     bot_info :str
     qq_number :str
+    master_number :str
     admin_list :List[int] # 管理员qq号
     listen_qq_groups :List[int] # 监听的QQ群
+    full_show_groups :List[int] # 完全显示信息的群
     fixed_begin :str # 固定命令前缀
     function_commands :dict
     function_command_info :List[str] # 帮助文本
     MySQL_config :dict # MySQL数据库配置
     MemoryChatRobot_config :dict # 对话人工智能体配置
-    GALLERY_SYSTEM_WEB :str # 幻想动物画廊后端地址
-    GALLERY_WEB :str # 幻想动物画廊网站地址
     @classmethod
     def load(cls,obj:dict):
         return cls(
             bot_name=obj['bot_name'],
             bot_info=obj['bot_info'],
             qq_number=obj['qq_number'],
+            master_number=obj['master_number'],
             admin_list=obj['admin_list'],
             listen_qq_groups=obj['listen_qq_groups'],
+            full_show_groups=obj['full_show_groups'],
             fixed_begin=obj['fixed_begin'],
             function_commands=obj['function_commands'],
             function_command_info=obj['function_command_info'],
             MySQL_config=obj['MySQL_config'],
             MemoryChatRobot_config=obj['MemoryChatRobot_config'],
-            GALLERY_SYSTEM_WEB=obj['GALLERY_SYSTEM_WEB'],
-            GALLERY_WEB=obj['GALLERY_WEB'],
         )
 
 # 群友
