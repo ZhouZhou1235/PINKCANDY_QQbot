@@ -43,25 +43,33 @@ def add_default_event_to_bot(bot:BotClient):
 
 # 开始时设置定时任务
 def begin_add_schedule(bot:BotClient):
+    def get_next_timestamp(hour=0,minute=0,second=0):
+        now = datetime.datetime.now()
+        target_time_today = datetime.datetime(now.year, now.month, now.day, hour, minute, second)
+        if now < target_time_today:
+            return target_time_today.timestamp()
+        else:
+            target_time_tomorrow = target_time_today + datetime.timedelta(days=1)
+            return target_time_tomorrow.timestamp()
     config_manager.date_scheduler.schedule_task(
         schedule_oneday,
         60*60*24,
         True,
-        get_date_timestamp(hour=10),
+        get_next_timestamp(hour=10),
         args=(bot,)
     )
     config_manager.date_scheduler.schedule_task(
         schedule_threeday,
         60*60*24*3,
         True,
-        get_date_timestamp(hour=11),
+        get_next_timestamp(hour=11),
         args=(bot,)
     )
     config_manager.date_scheduler.schedule_task(
         schedule_week,
         60*60*24*7,
         True,
-        get_date_timestamp(hour=12),
+        get_next_timestamp(hour=12),
         args=(bot,)
     )
     updateMessageScheduler(bot)

@@ -26,32 +26,30 @@ def updateMessageScheduler(bot:BotClient):
                 is_loop = int(obj['isloop'])==1
                 interval_seconds = int(obj['looptime'])
                 current_time = time.time()
-                start_timestamp = task_time.timestamp()
+                task_timestamp = task_time.timestamp()
                 def create_send_function(groupid,msg_content):
                     def send_function():
                         bot.api.post_group_msg_sync(group_id=groupid,text=msg_content)
                     return send_function
                 send_func = create_send_function(groupid,content)
                 if is_loop:
-                    if start_timestamp < current_time:
-                        today = datetime.datetime.now()
-                        new_time = datetime.datetime(
-                            today.year,today.month,today.day,
-                            task_time.hour,task_time.minute,task_time.second
-                        )
-                        start_timestamp = new_time.timestamp()
-                        if start_timestamp < current_time:
-                            start_timestamp += 24*60*60
+                    if task_timestamp < current_time:
+                        while task_timestamp < current_time:
+                            task_timestamp += interval_seconds
                     config_manager.message_scheduler.schedule_task(
                         send_func,
                         interval_seconds,
                         True,
-                        start_timestamp
+                        task_timestamp
                     )
-                config_manager.message_scheduler.schedule_task(
-                    send_func,
-                    start_timestamp - current_time,
-                )
+                else:
+                    delay_seconds = task_timestamp-current_time
+                    config_manager.message_scheduler.schedule_task(
+                        send_func,
+                        delay_seconds,
+                        False,
+                        current_time + delay_seconds
+                    )
     except Exception as e: print(e)
 
 # 添加定时任务
@@ -72,7 +70,10 @@ async def add_schedule_task(bot:BotClient,message:GroupMessage,is_loop:bool):
             today = datetime.datetime.today()
             start_time = datetime.datetime(today.year,today.month,today.day,hour,minute)
             start_timestamp = start_time.timestamp()
-            interval_seconds = interval_minutes*60
+            interval_seconds = interval_minutes * 60
+            current_time = time.time()
+            if start_timestamp < current_time:
+                start_timestamp += 24*60*60
         else:
             pattern = r'(\d+)\s+(.+)'
             match = re.match(pattern, content)
@@ -83,10 +84,6 @@ async def add_schedule_task(bot:BotClient,message:GroupMessage,is_loop:bool):
             message_content = match.group(2)
             start_timestamp = time.time() + (delay_minutes*60)
             interval_seconds = 0
-        current_time = time.time()
-        if start_timestamp < current_time and is_loop:
-            while start_timestamp < current_time:
-                start_timestamp += interval_seconds
         sql = """
             INSERT INTO schedule_messages(time,message,groupid,isloop,looptime,addtime)
             VALUES (%s,%s,%s,%s,%s,NOW())
@@ -119,7 +116,6 @@ async def delete_schedule_task(bot:BotClient,message:GroupMessage):
             await message.reply("PINKCANDY: delete schedule done.")
         else:
             await message.reply("PINKCANDY: delete schedule failed!")
-            
     except Exception as e: print(f"PINKCANDY ERROR: {e}")
 
 # 列出所有定时任务
@@ -190,7 +186,7 @@ async def remind_neardate(bot:BotClient,groupId:str|int|None=None):
             elif days_diff == 1:
                 day_text = "[明天]"
             else:
-                day_text = f"[{days_diff}天后]"
+                day_text = f"[{days_diff}天后]"   
             if groupId in config_manager.bot_config.full_show_groups:
                 remindNearText += f"{theDate.month}月{theDate.day}日{day_text} {obj['title']}\n"
             else:
