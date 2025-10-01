@@ -1,6 +1,5 @@
 # 机器启动器
 
-import asyncio
 from typing import Any,Callable
 from functions.schedule_event import *
 from functions.chat_with_robot import *
@@ -9,6 +8,8 @@ from functions.echo_media import *
 from functions.setting_action import *
 from ncatbot.core import BotClient,GroupMessage,PrivateMessage
 from ncatbot.utils import get_log
+import asyncio
+import datetime
 
 
 # 向机器添加消息监听事件
@@ -43,34 +44,55 @@ def add_default_event_to_bot(bot:BotClient):
 
 # 开始时设置定时任务
 def begin_add_schedule(bot:BotClient):
-    def get_next_timestamp(hour=0,minute=0,second=0):
+    # 计算首次执行的延迟时间（秒）
+    def calculate_first_delay(target_hour:int,target_minute=0,target_second=0):
         now = datetime.datetime.now()
-        target_time_today = datetime.datetime(now.year, now.month, now.day, hour, minute, second)
+        target_time_today = datetime.datetime(now.year, now.month, now.day, target_hour, target_minute, target_second)
+        delay_seconds = 0
         if now < target_time_today:
-            return target_time_today.timestamp()
+            delay_seconds = (target_time_today - now).total_seconds()
         else:
             target_time_tomorrow = target_time_today + datetime.timedelta(days=1)
-            return target_time_tomorrow.timestamp()
+            delay_seconds = (target_time_tomorrow - now).total_seconds()
+        return int(delay_seconds)
+    # 每日任务
+    async def run_and_loop_daily():
+        await schedule_oneday(bot)
+        config_manager.date_scheduler.schedule_loop_task(
+            60 * 60 * 24,
+            schedule_oneday,
+            bot
+        )
+    daily_delay = calculate_first_delay(10,0,0)
     config_manager.date_scheduler.schedule_task(
-        schedule_oneday,
-        60*60*24,
-        True,
-        get_next_timestamp(hour=10),
-        args=(bot,)
+        daily_delay,
+        run_and_loop_daily
     )
+    # 每三天任务  
+    async def run_and_loop_threeday():
+        await schedule_threeday(bot)
+        config_manager.date_scheduler.schedule_loop_task(
+            60 * 60 * 24 * 3,
+            schedule_threeday,
+            bot
+        )
+    three_day_delay = calculate_first_delay(11, 0, 0)
     config_manager.date_scheduler.schedule_task(
-        schedule_threeday,
-        60*60*24*3,
-        True,
-        get_next_timestamp(hour=11),
-        args=(bot,)
+        three_day_delay,
+        run_and_loop_threeday
     )
+    # 每周任务
+    async def run_and_loop_weekly():
+        await schedule_week(bot)
+        config_manager.date_scheduler.schedule_loop_task(
+            60 * 60 * 24 * 7,
+            schedule_week,
+            bot
+        )
+    weekly_delay = calculate_first_delay(12, 0, 0)
     config_manager.date_scheduler.schedule_task(
-        schedule_week,
-        60*60*24*7,
-        True,
-        get_next_timestamp(hour=12),
-        args=(bot,)
+        weekly_delay,
+        run_and_loop_weekly
     )
     updateMessageScheduler(bot)
 

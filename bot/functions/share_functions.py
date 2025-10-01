@@ -16,7 +16,7 @@ def get_dates(): return config_manager.mysql_connector.query_data("SELECT * FROM
 def updateMessageScheduler(bot:BotClient):
     try:
         config_manager.mysql_connector.execute_query("DELETE FROM schedule_messages WHERE time<NOW() and isloop=0")
-        config_manager.message_scheduler.clear_all_tasks()
+        config_manager.message_scheduler.cancel_all_tasks()
         result = config_manager.mysql_connector.query_data("SELECT * FROM schedule_messages")
         if result:
             for obj in result:
@@ -36,19 +36,15 @@ def updateMessageScheduler(bot:BotClient):
                     if task_timestamp < current_time:
                         while task_timestamp < current_time:
                             task_timestamp += interval_seconds
-                    config_manager.message_scheduler.schedule_task(
-                        send_func,
+                    config_manager.message_scheduler.schedule_loop_task(
                         interval_seconds,
-                        True,
-                        task_timestamp
+                        send_func
                     )
                 else:
                     delay_seconds = task_timestamp-current_time
                     config_manager.message_scheduler.schedule_task(
-                        send_func,
-                        delay_seconds,
-                        False,
-                        current_time + delay_seconds
+                        int(delay_seconds),
+                        send_func
                     )
     except Exception as e: print(e)
 
@@ -155,8 +151,11 @@ async def remind_date(bot:BotClient):
                 dateList.append(theDict)
     if len(dateList)>0:
         for obj in dateList: remindText+=f"{obj['title']}\n"
-        for groupId in get_listening_groups():
-            await bot.api.post_group_msg(group_id=groupId,text=remindText)
+        for groupId in config_manager.bot_config.listen_qq_groups:
+            if groupId in config_manager.bot_config.full_show_groups:
+                await bot.api.post_group_msg(group_id=groupId,text=remindText)
+            else:
+                await bot.api.post_group_msg(group_id=groupId,text=f"==={today.month}月{today.day}日是某{len(dateList)}件事的特别日期===")
 
 # 临近特别日期提醒
 async def remind_neardate(bot:BotClient,groupId:str|int|None=None):

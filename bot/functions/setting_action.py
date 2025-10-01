@@ -65,12 +65,7 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
             text += f"[机器主宰]{res['data']['nick']}\n"
             for admin_userId in get_admin_list():
                 res = await api_getUser(bot,admin_userId)
-                if message.group_id in config_manager.bot_config.full_show_groups:
-                    text += f"{res['data']['nick']}\n"
-                else:
-                    name = res['data']['nick']
-                    name = '......'+name[len(name)-3:]
-                    text += f"{name}\n"
+                text += f"{res['data']['nick']}\n"
             await bot.api.post_group_msg(group_id=message.group_id,text=text)
         # 添加特别日期
         elif messageContent.find(getCommendString("add_date"))!=-1:
