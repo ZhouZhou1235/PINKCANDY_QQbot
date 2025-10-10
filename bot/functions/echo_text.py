@@ -86,35 +86,34 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
                 else:
                     remindText += f"{theDate.month}月{theDate.day}日 - ......\n"
         result = await bot.api.post_group_msg(group_id=groupId,text=remindText)
-        # 不完全展示的群一分钟后撤回
+        # 不完全展示的群10秒后撤回
         if message.group_id not in config_manager.bot_config.full_show_groups:
             message_id = result['data']['message_id']
             async def delete_after_delay():
                 await asyncio.sleep(10)
-                await bot.api.delete_msg(message_id=message_id)
+                x = await bot.api.delete_msg(message_id=message_id)
             asyncio.create_task(delete_after_delay())
-
     # 临近日期提醒
     elif messageContent==getCommendString("remind_neardate"):
         await remind_neardate(bot,groupId)
     # 概率触发
     else:
         # 跟着说话
-        if random.randint(0,199)<1:
+        if random.randint(0,299)<1:
             try:
                 session_id = str(groupId)
                 theMessageList:list = await api_getGroupMessageHistory(bot,groupId,25)
                 if theMessageList:
                     messagesString = ""
                     for m in theMessageList:
-                        messagesString += f"[id{m['sender']['user_id']} nickname{m['sender']['user_id']}:{m['raw_message']}]"
+                        messagesString += f"[id{m['sender']['user_id']} nickname{m['sender']['nickname']}:{m['raw_message']}]"
                     auto_input = f"""
                         {messagesString}
-                        根据上面的聊天跟着说句话，不要发负面内容。不宜超过25字。
+                        根据以上聊天跟着说话，不能有负面内容，不宜超过25字。
                     """
                     response = await config_manager.chat_robot.group_chat(session_id,auto_input)
                     await bot.api.post_group_msg(group_id=groupId, text=str(response))
             except Exception as e: print(e)
         # 戳发送者
-        elif random.randint(0,149)<1:
+        elif random.randint(0,199)<1:
             bot.api.send_poke_sync(user_id=message.user_id,group_id=groupId)

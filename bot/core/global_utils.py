@@ -89,3 +89,15 @@ def get_admin_list(): return config_manager.bot_config.admin_list
 def isEquelDate(date1:datetime.date,date2=datetime.date):
     if date1.month==date2.month and date1.day==date2.day: return True
     else: return False
+
+# 计算首次执行的延迟时间（秒）
+def calculate_first_delay(target_hour:int,target_minute=0,target_second=0):
+    now = datetime.datetime.now()
+    target_time_today = datetime.datetime(now.year, now.month, now.day, target_hour, target_minute, target_second)
+    delay_seconds = 0
+    if now < target_time_today:
+        delay_seconds = (target_time_today - now).total_seconds()
+    else:
+        target_time_tomorrow = target_time_today + datetime.timedelta(days=1)
+        delay_seconds = (target_time_tomorrow - now).total_seconds()
+    return int(delay_seconds)

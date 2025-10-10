@@ -33,12 +33,16 @@ def updateMessageScheduler(bot:BotClient):
                     return send_function
                 send_func = create_send_function(groupid,content)
                 if is_loop:
-                    if task_timestamp < current_time:
-                        while task_timestamp < current_time:
-                            task_timestamp += interval_seconds
-                    config_manager.message_scheduler.schedule_loop_task(
-                        interval_seconds,
-                        send_func
+                    def run_and_loop():
+                        send_func()
+                        config_manager.message_scheduler.schedule_loop_task(
+                            interval_seconds,
+                            send_func
+                        )
+                    delay = calculate_first_delay(task_time.hour,task_time.minute,task_time.second)
+                    config_manager.message_scheduler.schedule_task(
+                        delay,
+                        run_and_loop
                     )
                 else:
                     delay_seconds = task_timestamp-current_time
@@ -155,7 +159,10 @@ async def remind_date(bot:BotClient):
             if groupId in config_manager.bot_config.full_show_groups:
                 await bot.api.post_group_msg(group_id=groupId,text=remindText)
             else:
-                await bot.api.post_group_msg(group_id=groupId,text=f"==={today.month}月{today.day}日是某{len(dateList)}件事的特别日期===")
+                await bot.api.post_group_msg(
+                    group_id=groupId,
+                    text=f"==={today.month}月{today.day}日是某{len(dateList)}件事的特别日期==="
+                )
 
 # 临近特别日期提醒
 async def remind_neardate(bot:BotClient,groupId:str|int|None=None):
@@ -196,4 +203,4 @@ async def remind_neardate(bot:BotClient,groupId:str|int|None=None):
         else:
             await bot.api.post_group_msg(group_id=groupId, text=remindNearText)
     elif groupId is not None:
-        await bot.api.post_group_msg(group_id=groupId, text='PINKCANDY: near dates have not content.')
+        await bot.api.post_group_msg(group_id=groupId, text='PINKCANDY: no events near dates.')

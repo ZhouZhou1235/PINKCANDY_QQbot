@@ -40,7 +40,7 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
                             await message.reply(text="PINKCANDY ERROR: delete date failed.")
                 except Exception as e: print(e)
             # 立即执行定时事件
-            elif messageContent.find(getCommendString("do_schedule"))!=-1 and message.user_id is config_manager.bot_config.master_number:
+            elif messageContent.find(getCommendString("do_schedule"))!=-1 and str(message.user_id)==config_manager.bot_config.master_number:
                 await schedule_oneday(bot)
                 await schedule_threeday(bot)
                 await schedule_week(bot)

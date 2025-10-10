@@ -9,7 +9,6 @@ from functions.setting_action import *
 from ncatbot.core import BotClient,GroupMessage,PrivateMessage
 from ncatbot.utils import get_log
 import asyncio
-import datetime
 
 
 # 向机器添加消息监听事件
@@ -34,8 +33,8 @@ def add_listen_event(bot_client:BotClient,handler:Callable[...,Any],isGroup:bool
             log.info(f"[private message] {message}")
             await wrapped_handler(message)
 
-# 为客户端注册默认事件
-def add_default_event_to_bot(bot:BotClient):
+# 为客户端注册事件
+def add_event_to_bot(bot:BotClient):
     add_listen_event(bot,group_echo_text)
     add_listen_event(bot,group_echo_media)
     add_listen_event(bot,group_chat_with_robot)
@@ -44,17 +43,6 @@ def add_default_event_to_bot(bot:BotClient):
 
 # 开始时设置定时任务
 def begin_add_schedule(bot:BotClient):
-    # 计算首次执行的延迟时间（秒）
-    def calculate_first_delay(target_hour:int,target_minute=0,target_second=0):
-        now = datetime.datetime.now()
-        target_time_today = datetime.datetime(now.year, now.month, now.day, target_hour, target_minute, target_second)
-        delay_seconds = 0
-        if now < target_time_today:
-            delay_seconds = (target_time_today - now).total_seconds()
-        else:
-            target_time_tomorrow = target_time_today + datetime.timedelta(days=1)
-            delay_seconds = (target_time_tomorrow - now).total_seconds()
-        return int(delay_seconds)
     # 每日任务
     async def run_and_loop_daily():
         await schedule_oneday(bot)
@@ -76,7 +64,7 @@ def begin_add_schedule(bot:BotClient):
             schedule_threeday,
             bot
         )
-    three_day_delay = calculate_first_delay(11, 0, 0)
+    three_day_delay = calculate_first_delay(11,0,0)
     config_manager.date_scheduler.schedule_task(
         three_day_delay,
         run_and_loop_threeday
@@ -89,7 +77,7 @@ def begin_add_schedule(bot:BotClient):
             schedule_week,
             bot
         )
-    weekly_delay = calculate_first_delay(12, 0, 0)
+    weekly_delay = calculate_first_delay(12,0,0)
     config_manager.date_scheduler.schedule_task(
         weekly_delay,
         run_and_loop_weekly
@@ -99,6 +87,6 @@ def begin_add_schedule(bot:BotClient):
 # 创建客户端
 def create_bot(): 
     bot = BotClient()
-    add_default_event_to_bot(bot)
+    add_event_to_bot(bot)
     begin_add_schedule(bot)
     return bot
