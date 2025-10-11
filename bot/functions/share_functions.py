@@ -33,11 +33,11 @@ def updateMessageScheduler(bot:BotClient):
                     return send_function
                 send_func = create_send_function(groupid,content)
                 if is_loop:
-                    def run_and_loop():
-                        send_func()
+                    def run_and_loop(groupid=groupid,msg_content=content):
+                        bot.api.post_group_msg_sync(group_id=groupid,text=msg_content)
                         config_manager.message_scheduler.schedule_loop_task(
                             interval_seconds,
-                            send_func
+                            lambda: bot.api.post_group_msg_sync(group_id=groupid,text=msg_content)
                         )
                     delay = calculate_first_delay(task_time.hour,task_time.minute,task_time.second)
                     config_manager.message_scheduler.schedule_task(
