@@ -175,7 +175,7 @@ async def remind_neardate(bot:BotClient,groupId:str|int|None=None):
             theDate :datetime.date = obj['date']
             this_year_date = datetime.date(today.year, theDate.month, theDate.day)
             days_diff = (this_year_date - today).days
-            if 0 <= days_diff <= 7:
+            if 0 <= days_diff <= 30:
                 theDict = {
                     'date': this_year_date,
                     'title': obj['title'],
@@ -193,7 +193,7 @@ async def remind_neardate(bot:BotClient,groupId:str|int|None=None):
                 day_text = "[明天]"
             else:
                 day_text = f"[{days_diff}天后]"   
-            if groupId in config_manager.bot_config.full_show_groups:
+            if int(str(groupId)) in config_manager.bot_config.full_show_groups:
                 remindNearText += f"{theDate.month}月{theDate.day}日{day_text} {obj['title']}\n"
             else:
                 remindNearText += f"{theDate.month}月{theDate.day}日{day_text} ......\n"
