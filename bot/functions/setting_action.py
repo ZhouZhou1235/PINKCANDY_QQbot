@@ -95,3 +95,51 @@ async def group_setting_action(bot:BotClient,message:GroupMessage):
         # 列出定时任务
         elif messageContent == getCommendString("list_schedule"):
             await list_schedule_tasks(bot, message)
+        # 添加缩写词
+        elif messageContent.find(getCommendString("add_abbreviation"))!=-1:
+            try:
+                command = getCommendString("add_abbreviation")
+                remaining_text = messageContent[len(command):].strip()
+                first_space = remaining_text.find(' ')
+                if first_space != -1:
+                    word = remaining_text[:first_space].strip()
+                    explanation = remaining_text[first_space:].strip()
+                    if word and explanation:
+                        existing = config_manager.mysql_connector.query_data(f"SELECT * FROM `abbreviation_dictionary` WHERE word='{word}'")
+                        if existing:
+                            config_manager.mysql_connector.execute_query(
+                                "UPDATE `abbreviation_dictionary` SET explanation=%s WHERE word=%s",
+                                (explanation,word)
+                            )
+                            await message.reply(text=f"PINKCANDY: updated {word} explanation.")
+                        else:
+                            config_manager.mysql_connector.execute_query(
+                                "INSERT INTO `abbreviation_dictionary` (word,explanation) VALUES(%s,%s)",
+                                (word,explanation)
+                            )
+                            await message.reply(text=f"PINKCANDY: add {word}.")
+                    else:
+                        await message.reply(text="PINKCANDY: format error.")
+                else:
+                    await message.reply(text="PINKCANDY: format error.")
+            except Exception as e: print(f"PINKCANDY ERROR:{e}")
+        # 删除缩写词
+        elif messageContent.find(getCommendString("delete_abbreviation"))!=-1:
+            try:
+                command = getCommendString("delete_abbreviation")
+                word_to_delete = messageContent[len(command):].strip()
+                if word_to_delete:
+                    existing = config_manager.mysql_connector.query_data(
+                        f"SELECT * FROM `abbreviation_dictionary` WHERE word='{word_to_delete}'"
+                    )
+                    if existing:
+                        config_manager.mysql_connector.execute_query(
+                            "DELETE FROM `abbreviation_dictionary` WHERE word = %s",
+                            (word_to_delete,)
+                        )
+                        await message.reply(text=f"PINKCANDY: delete {word_to_delete}")
+                    else:
+                        await message.reply(text=f"PINKCANDY: {word_to_delete} not found")
+                else:
+                    await message.reply(text=f"PINKCANDY: not found any word")
+            except Exception as e: print(f"PINKCANDY ERROR:{e}")

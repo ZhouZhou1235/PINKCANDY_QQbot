@@ -96,6 +96,33 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
     # 临近日期提醒
     elif messageContent==getCommendString("remind_neardate"):
         await remind_neardate(bot,groupId)
+    # 列出缩写解释
+    elif messageContent.find(getCommendString("abbreviation"))!=-1:
+        if messageContent==getCommendString("abbreviation"):
+            result = config_manager.mysql_connector.query_data("SELECT * FROM `abbreviation_dictionary` ORDER BY Id DESC LIMIT 20")
+            if result:
+                text = "===缩写词典===\n"
+                for obj in result:
+                    word = obj['word']
+                    explanation = obj['explanation']
+                    text += f"{word} | {explanation}\n"
+                await bot.api.post_group_msg(group_id=groupId,text=text)
+            else:
+                await bot.api.post_group_msg(group_id=groupId,text="PINKCANDY: abbreviation dictionary is empty.")
+        else:
+            try:
+                command = getCommendString("abbreviation")
+                word_to_search = messageContent[len(command):].strip()
+                if word_to_search:
+                    result = config_manager.mysql_connector.query_data(f"SELECT * FROM `abbreviation_dictionary` WHERE word='{word_to_search}'")
+                    if result:
+                        word = result[0]['word']
+                        explanation = result[0]['explanation']
+                        text = f"缩写词典 {word} | {explanation}"
+                        await bot.api.post_group_msg(group_id=groupId,text=text)
+                    else:
+                        await bot.api.post_group_msg(group_id=groupId, text=f"PINKCANDY:have not {word_to_search} explanation.")
+            except Exception as e: print(f"PINKCANDY ERROR:{e}")
     # 概率触发
     else:
         # 跟着说话

@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.5
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2025-08-21 22:44:04
--- 服务器版本： 8.0.12
--- PHP 版本： 7.3.9
+-- 生成日期： 2025-10-14 10:48:40
+-- 服务器版本： 9.4.0-commercial
+-- PHP 版本： 8.4.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -21,6 +20,18 @@ SET time_zone = "+00:00";
 --
 -- 数据库： `pinkcandy_qqbot`
 --
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `abbreviation_dictionary`
+--
+
+CREATE TABLE `abbreviation_dictionary` (
+  `Id` int NOT NULL,
+  `word` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
+  `explanation` varchar(1024) COLLATE utf8mb4_general_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -40,7 +51,7 @@ CREATE TABLE `date_reminder` (
 --
 
 CREATE TABLE `group_chat_memories` (
-  `session_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `session_id` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
   `history_json` json NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -53,7 +64,7 @@ CREATE TABLE `group_chat_memories` (
 --
 
 CREATE TABLE `private_chat_memories` (
-  `session_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `session_id` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
   `history_json` json NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -66,18 +77,24 @@ CREATE TABLE `private_chat_memories` (
 --
 
 CREATE TABLE `schedule_messages` (
-  `Id` int(11) NOT NULL,
+  `Id` int NOT NULL,
   `time` datetime NOT NULL,
   `message` varchar(1024) COLLATE utf8mb4_general_ci NOT NULL,
   `groupid` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
-  `isloop` int(11) NOT NULL,
-  `looptime` int(11) NOT NULL,
+  `isloop` int NOT NULL,
+  `looptime` int NOT NULL,
   `addtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- 转储表的索引
 --
+
+--
+-- 表的索引 `abbreviation_dictionary`
+--
+ALTER TABLE `abbreviation_dictionary`
+  ADD PRIMARY KEY (`Id`);
 
 --
 -- 表的索引 `date_reminder`
@@ -108,10 +125,16 @@ ALTER TABLE `schedule_messages`
 --
 
 --
+-- 使用表AUTO_INCREMENT `abbreviation_dictionary`
+--
+ALTER TABLE `abbreviation_dictionary`
+  MODIFY `Id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- 使用表AUTO_INCREMENT `schedule_messages`
 --
 ALTER TABLE `schedule_messages`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Id` int NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
