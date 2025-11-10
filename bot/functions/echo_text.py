@@ -126,21 +126,21 @@ async def group_echo_text(bot:BotClient,message:GroupMessage):
     # 概率触发
     else:
         # 跟着说话
-        if random.randint(0,299)<1:
-            try:
-                session_id = str(groupId)
-                theMessageList:list = await api_getGroupMessageHistory(bot,groupId,25)
-                if theMessageList:
-                    messagesString = ""
-                    for m in theMessageList:
-                        messagesString += f"[id{m['sender']['user_id']} nickname{m['sender']['nickname']}:{m['raw_message']}]"
-                    auto_input = f"""
-                        {messagesString}
-                        根据以上聊天跟着说话，不能有负面内容，不宜超过25字。
-                    """
-                    response = await config_manager.chat_robot.group_chat(session_id,auto_input)
-                    await bot.api.post_group_msg(group_id=groupId, text=str(response))
-            except Exception as e: print(e)
+        # if random.randint(0,299)<1:
+        #     try:
+        #         session_id = str(groupId)
+        #         theMessageList:list = await api_getGroupMessageHistory(bot,groupId,25)
+        #         if theMessageList:
+        #             messagesString = ""
+        #             for m in theMessageList:
+        #                 messagesString += f"[id{m['sender']['user_id']} nickname{m['sender']['nickname']}:{m['raw_message']}]"
+        #             auto_input = f"""
+        #                 {messagesString}
+        #                 根据以上聊天跟着说话，不能有负面内容，不宜超过25字。
+        #             """
+        #             response = await config_manager.chat_robot.group_chat(session_id,auto_input)
+        #             await bot.api.post_group_msg(group_id=groupId, text=str(response))
+        #     except Exception as e: print(e)
         # 戳发送者
-        elif random.randint(0,199)<1:
+        if random.randint(0,199)<1:
             bot.api.send_poke_sync(user_id=message.user_id,group_id=groupId)
