@@ -8,5 +8,8 @@ if __name__=='__main__':
     bot = create_bot()
     bot.run(
         bt_uin=config_manager.bot_config.qq_number,
-        enable_webui_interaction=False
+        root=config_manager.bot_config.master_number,
+        ws_uri=config_manager.bot_config.Ncatbot_config['ws_uri'],
+        ws_token=config_manager.bot_config.Ncatbot_config['ws_token'],
+        enable_webui_interaction=config_manager.bot_config.Ncatbot_config['enable_webui'],
     )

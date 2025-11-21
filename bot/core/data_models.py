@@ -18,6 +18,7 @@ class BotConfig:
     function_command_info :List[str] # 帮助文本
     MySQL_config :dict # MySQL数据库配置
     MemoryChatRobot_config :dict # 对话人工智能体配置
+    Ncatbot_config :dict # ncatbot的配置
     @classmethod
     def load(cls,obj:dict):
         return cls(
@@ -33,6 +34,7 @@ class BotConfig:
             function_command_info=obj['function_command_info'],
             MySQL_config=obj['MySQL_config'],
             MemoryChatRobot_config=obj['MemoryChatRobot_config'],
+            Ncatbot_config=obj['Ncatbot_config'],
         )
 
 # 群友

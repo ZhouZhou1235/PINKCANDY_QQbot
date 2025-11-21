@@ -26,5 +26,10 @@
         "max_db_memory_length": 100,
         "base_url": "https://api.deepseek.com",
         "api_key": "api key value"
+    },
+    "Ncatbot_config":{
+        "ws_uri":"ws://localhost:3001",
+        "ws_token":"napcat token",
+        "enable_webui":false
     }
 }

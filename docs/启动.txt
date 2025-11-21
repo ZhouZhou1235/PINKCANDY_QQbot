@@ -1,8 +1,9 @@
 启动
 
 
-在项目根目录下：
+提示：linux中napcat token现在是必须的
 
+在项目根目录下：
 
 [windows]
 点击 launcher.bat 启动napcat协议服务

@@ -1,4 +1,4 @@
-相关下载
+相关链接
 
 
 QQ通信协议 NapCat
@@ -9,3 +9,9 @@ curl -o \
 napcat.sh \
 https://nclatest.znin.net/NapNeko/NapCat-Installer/main/script/install.sh \
 && sudo bash napcat.sh
+
+napcat文档
+https://www.napcat.wiki
+
+ncatbot文档
+https://docs.ncatbot.xyz
