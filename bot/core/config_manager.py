@@ -100,7 +100,6 @@ class ConfigManager:
         self._initialized = True
         # 配置文件路径
         self.work_path = os.getcwd()
-        # self.work_path = os.getcwd() + '/bot' # 用 vscode F5运行
         self.config_path = self.work_path.replace("\\", "/") + "/bot_config.json"
         with open(self.config_path, 'r', encoding='UTF-8') as f: config_data=json.load(f)
         # 全局变量

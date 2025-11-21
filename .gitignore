@@ -1,5 +1,4 @@
-/download
-/NapCat
+napcat/
 logs
 data
 __pycache__

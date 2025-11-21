@@ -6,4 +6,7 @@ from core.bot_launcher import create_bot
 
 if __name__=='__main__':
     bot = create_bot()
-    bot.run(bt_uin=config_manager.bot_config.qq_number)
+    bot.run(
+        bt_uin=config_manager.bot_config.qq_number,
+        enable_webui_interaction=False
+    )
